@@ -1,0 +1,8 @@
+Makefile
+Makefile.in
+*.css
+*.dot
+*.html
+*.map
+*.md5
+*.png

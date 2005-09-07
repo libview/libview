@@ -68,8 +68,11 @@ dnl ################################################################
 dnl # Output the Makefiles
 dnl ################################################################
 AC_CONFIG_FILES([
-libview.pc
+Doxyfile
 Makefile
+libview.pc
+docs/Makefile
+docs/html/Makefile
 libview/Makefile
 ])
 

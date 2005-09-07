@@ -1,4 +1,4 @@
-SUBDIRS = libview
+SUBDIRS = docs libview
 
 pcdata_DATA = libview.pc
 pcdatadir = $(libdir)/pkgconfig
@@ -15,3 +15,6 @@ EXTRA_DIST = \
 $(OBJECTS): libtool
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
+
+doxygen:
+	doxygen
