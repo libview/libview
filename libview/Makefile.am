@@ -17,6 +17,7 @@ viewinc_HEADERS = \
 	spinner.hh \
 	toolTip.hh \
 	uiGroup.hh \
+	undoableTextView.hh \
 	view.hh \
 	viewport.hh \
 	visibilityBox.hh \
@@ -37,6 +38,7 @@ libview_la_SOURCES = \
 	spinner.cc \
 	toolTip.cc \
 	uiGroup.cc \
+	undoableTextView.cc \
 	viewport.cc \
 	visibilityBox.cc \
 	widthHeight.cc \
