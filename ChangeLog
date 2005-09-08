@@ -1,3 +1,8 @@
+Thu Sep 08 14:54:46 PDT 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* NEWS:
+	  - Update the NEWS file with the new changes.
+
 Thu Sep 08 14:49:27 PDT 2005  Christian Hammond <chipx86@chipx86.com>
 
 	* libview/reparenter.cc:

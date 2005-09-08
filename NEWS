@@ -1,4 +1,9 @@
 version 0.5.1:
+        * Added a DeadEntry widget, which is a Gtk::Entry that appears
+          greyed out when it's not editable.
+        * Added an UndoableTextView widget, which is a Gtk::TextView that
+          has built-in undo/redo support.
+        * Fixed some bugs in Reparenter.
 
 version 0.5.0:
         * Initial public release
