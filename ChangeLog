@@ -1,3 +1,10 @@
+Thu Sep 08 14:15:57 PDT 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* NEWS:
+	* configure.ac:
+	  - Bump up the version to 0.5.0.90. This marks a development version,
+	    and will be at 0.5.1 for the next release.
+
 Wed Sep 07 16:01:19 PDT 2005  Christian Hammond <chipx86@chipx86.com>
 
 	* docs/.cvsignore:
