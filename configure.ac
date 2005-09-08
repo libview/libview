@@ -74,6 +74,7 @@ libview.pc
 docs/Makefile
 docs/html/Makefile
 libview/Makefile
+tests/Makefile
 ])
 
 AC_OUTPUT

@@ -1,4 +1,4 @@
-SUBDIRS = docs libview
+SUBDIRS = docs libview tests
 
 pcdata_DATA = libview.pc
 pcdatadir = $(libdir)/pkgconfig

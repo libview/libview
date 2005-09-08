@@ -1,0 +1,6 @@
+Makefile
+Makefile.in
+test-drawer
+.deps
+.libs
+*.o

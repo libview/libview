@@ -1,3 +1,13 @@
+Thu Sep 08 15:05:20 PDT 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/drawer.c:
+	A tests/.cvsignore:
+	A tests/Makefile.am:
+	A tests/test-drawer.cc:
+	* Makefile.am:
+	* configure.ac:
+	  - Added a test app for the ViewDrawer widget.
+
 Thu Sep 08 14:54:46 PDT 2005  Christian Hammond <chipx86@chipx86.com>
 
 	* NEWS:
