@@ -5,6 +5,7 @@ lib_LTLIBRARIES = libview.la
 viewinc_HEADERS = \
 	actionGroup.hh \
 	baseBGBox.hh \
+	deadEntry.hh \
 	defines.h \
 	drawer.h \
 	header.hh \
@@ -25,6 +26,7 @@ viewinc_HEADERS = \
 
 libview_la_SOURCES = \
 	baseBGBox.cc \
+	deadEntry.cc \
 	drawer.c \
 	header.cc \
 	menuToggleAction.cc \
