@@ -1,3 +1,24 @@
+Thu Sep 08 14:49:27 PDT 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/reparenter.cc:
+	  - Cross-porting Regis's fix for the reparenter:
+
+	    "gtk_widget_reparent() sometimes actually unrealizes the widget:
+	    when the new parent is not realized, which is what happens here.
+
+	    In other words, depending on whether the new parent is
+	    realized or not, gtk_widget_reparent() can end up
+	    unmapping/mapping the widget.
+
+	    The problem was that the reparenter code was
+	    setting mWasMapped too soon (i.e. before the call
+	    to reparent()), and that value could be
+	    subsequently modified by reparent(). This lead to
+	    the code thinking mWasMapped was false where it
+	    should have been true, and so the code was _not_
+	    re-showing the GDK window asynchronously instead
+	    of re-showing it."
+
 Thu Sep 08 14:42:56 PDT 2005  Christian Hammond <chipx86@chipx86.com>
 
 	* libview/Makefile.am:

@@ -288,8 +288,7 @@ Reparenter::Reparent(Gtk::Container &newParent) // IN
    delete mTrackable;
    mTrackable = NULL;
 
-   mWasMapped = mWidget.is_mapped();
-   if (mWasMapped) {
+   if (mWidget.is_mapped()) {
       g_assert(mWidget.is_realized());
 
       /*
@@ -306,6 +305,12 @@ Reparenter::Reparent(Gtk::Container &newParent) // IN
    mTrackable = new sigc::trackable();
 
    mWidget.reparent(newParent);
+
+   /*
+    * Must come after reparent(), because reparent() can modify the result of
+    * is_mapped().
+    */
+   mWasMapped = mWidget.is_mapped();
 
    /* Workaround 3 */
    RecurseQueueResize(mWidget);
