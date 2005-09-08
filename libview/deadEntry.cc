@@ -38,7 +38,7 @@ namespace view {
 /*
  *-----------------------------------------------------------------------------
  *
- * vmwareGtk::DeadEntry::DeadEntry --
+ * view::DeadEntry::DeadEntry --
  *
  *      Constructor.  Listens for "editable" property changes, connects to
  *      "style_changed" signal, and sets the initial editable value to %false.
@@ -69,7 +69,7 @@ DeadEntry::DeadEntry(void)
 /*
  *-----------------------------------------------------------------------------
  *
- * vmwareGtk::DeadEntry::EditableChanged --
+ * view::DeadEntry::EditableChanged --
  *
  *      "editable" Property change notifier.  If editable is %false, applies a
  *      "greyed-out background" to the entry's frame by using the theme's
@@ -108,7 +108,7 @@ DeadEntry::EditableChanged(void)
 /*
  *-----------------------------------------------------------------------------
  *
- * vmwareGtk::DeadEntry::StyleSet --
+ * view::DeadEntry::StyleSet --
  *
  *      "style_set" Signal handler.  Calls EditableChanged() to reapply style
  *      modifications using the new theme.
