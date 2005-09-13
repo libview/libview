@@ -1,3 +1,10 @@
+Mon Sep 12 17:29:56 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
+
+	* tests/Makefile.am:
+	* tests/.cvsignore:
+	A tests/test-dead-entry.cc:
+	  - Added a test program for view::DeadEntry.
+
 Mon Sep 12 17:10:08 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
 
 	* tests/.cvsignore:

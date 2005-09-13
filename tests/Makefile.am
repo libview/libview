@@ -1,4 +1,5 @@
 noinst_PROGRAMS = \
+	test-dead-entry \
 	test-drawer \
 	test-wrap-label
 
@@ -6,6 +7,10 @@ noinst_PROGRAMS = \
 common_ldflags = \
 	$(top_builddir)/libview/libview.la \
 	$(VIEW_LIBS)
+
+
+test_dead_entry_SOURCES = test-dead-entry.cc
+test_dead_entry_LDADD   = $(common_ldflags)
 
 
 test_drawer_SOURCES = test-drawer.cc
