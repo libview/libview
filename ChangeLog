@@ -1,3 +1,12 @@
+Tue Sep 13 12:24:31 PDT 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/wrapLabel.cc:
+	  - Set the alignment to 0.0, 0.0 by default. Otherwise, the
+	    text alignment starts toward the center, but spans past the
+	    right edge. We always set the alignment to 0.0, 0.0 in
+	    Workstation, but most people aren't going to realize this is
+	    needed.
+
 Mon Sep 12 17:29:56 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
 
 	* tests/Makefile.am:

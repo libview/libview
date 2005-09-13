@@ -55,6 +55,7 @@ WrapLabel::WrapLabel(const Glib::ustring &text) // IN: The label text
      mWrapWidth(0)
 {
    get_layout()->set_wrap(Pango::WRAP_WORD_CHAR);
+   set_alignment(0.0, 0.0);
 }
 
 
