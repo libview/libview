@@ -1,4 +1,4 @@
-AC_INIT(libview, 0.5.0.90, christian@vmware.com)
+AC_INIT(libview, 0.5.1, christian@vmware.com)
 AC_PREREQ(2.50)
 AC_CONFIG_SRCDIR(config.h.in)
 AC_COPYRIGHT([Copyright 2005 VMware, Inc.])
@@ -13,9 +13,9 @@ dnl #  ? : +1 :  ?   == internal changes that doesn't break anything.
 dnl #
 dnl # CURRENT : REVISION : AGE
 dnl #
-LT_CURRENT=0
+LT_CURRENT=1
 LT_REVISION=0
-LT_AGE=0
+LT_AGE=1
 
 AC_SUBST(LT_RELEASE)
 AC_SUBST(LT_CURRENT)
@@ -26,7 +26,7 @@ AC_SUBST(LT_AGE)
 dnl ################################################################
 dnl # Initialize automake
 dnl ################################################################
-VERSION=0.5.0.90
+VERSION=0.5.1
 PACKAGE=libview
 
 AM_INIT_AUTOMAKE($PACKAGE, $VERSION)

@@ -1,8 +1,12 @@
-version 0.5.1:
+version 0.5.1 (Tuesday, September 13, 2005):
         * Added a DeadEntry widget, which is a Gtk::Entry that appears
           greyed out when it's not editable.
         * Added an UndoableTextView widget, which is a Gtk::TextView that
           has built-in undo/redo support.
+        * Added several small test programs.
+        * Worked around a bug in WrapLabel where the alignment wasn't
+          automatically set to 0, 0, which caused the text to start centered
+          and wrap off the widget.
         * Fixed some bugs in Reparenter.
 
 version 0.5.0:
