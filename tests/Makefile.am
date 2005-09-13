@@ -1,6 +1,7 @@
 noinst_PROGRAMS = \
 	test-dead-entry \
 	test-drawer \
+	test-header-bgbox \
 	test-wrap-label
 
 
@@ -15,6 +16,10 @@ test_dead_entry_LDADD   = $(common_ldflags)
 
 test_drawer_SOURCES = test-drawer.cc
 test_drawer_LDADD   = $(common_ldflags)
+
+
+test_header_bgbox_SOURCES = test-header-bgbox.cc
+test_header_bgbox_LDADD   = $(common_ldflags)
 
 
 test_wrap_label_SOURCES = test-wrap-label.cc

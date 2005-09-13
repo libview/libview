@@ -2,7 +2,9 @@ Makefile
 Makefile.in
 test-dead-entry
 test-drawer
+test-header-bgbox
 test-wrap-label
 .deps
 .libs
 *.o
+.*.swp
