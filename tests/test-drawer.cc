@@ -104,6 +104,9 @@ main(int argc,
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_widget_show(window);
 
+  g_signal_connect(G_OBJECT(window), "destroy",
+                   G_CALLBACK(gtk_main_quit), NULL);
+
   drawer = ViewDrawer_New();
   gtk_widget_show(drawer);
   gtk_container_add(GTK_CONTAINER(window), drawer);
@@ -111,8 +114,8 @@ main(int argc,
   button2 = gtk_button_new_with_label("Close");
   gtk_widget_show(button2);
   ViewOvBox_SetOver(VIEW_OV_BOX(drawer), button2);
-  gtk_signal_connect(GTK_OBJECT(button2), "clicked",
-                     GTK_SIGNAL_FUNC(OnClose), NULL);
+  g_signal_connect(G_OBJECT(button2), "clicked",
+                   G_CALLBACK(OnClose), NULL);
 
   vbox = gtk_vbox_new(FALSE, 0);
   gtk_widget_show(vbox);
@@ -121,21 +124,21 @@ main(int argc,
   button1 = gtk_button_new_with_label("Open");
   gtk_widget_show(button1);
   gtk_box_pack_start(GTK_BOX(vbox), button1, TRUE, TRUE, 0);
-  gtk_signal_connect(GTK_OBJECT(button1), "clicked",
-                     GTK_SIGNAL_FUNC(OnOpen), NULL);
+  g_signal_connect(G_OBJECT(button1), "clicked",
+                   G_CALLBACK(OnOpen), NULL);
 
   cb1 = gtk_check_button_new_with_label("Locked");
   gtk_widget_show(cb1);
   gtk_box_pack_start(GTK_BOX(vbox), cb1, FALSE, FALSE, 0);
-  gtk_signal_connect(GTK_OBJECT(cb1), "toggled",
-                     GTK_SIGNAL_FUNC(OnLocked), NULL);
+  g_signal_connect(G_OBJECT(cb1), "toggled",
+                   G_CALLBACK(OnLocked), NULL);
   OnLocked(NULL, NULL);
 
   cb2 = gtk_check_button_new_with_label("Slow");
   gtk_widget_show(cb2);
   gtk_box_pack_start(GTK_BOX(vbox), cb2, FALSE, FALSE, 0);
-  gtk_signal_connect(GTK_OBJECT(cb2), "toggled",
-                     GTK_SIGNAL_FUNC(OnSlow), NULL);
+  g_signal_connect(G_OBJECT(cb2), "toggled",
+                   G_CALLBACK(OnSlow), NULL);
   OnSlow(NULL, NULL);
 
   gtk_main();
