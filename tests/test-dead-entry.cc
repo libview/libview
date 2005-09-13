@@ -41,63 +41,63 @@ class AppWindow
    : public Gtk::Window
 {
 public:
-    AppWindow();
+   AppWindow();
 
 private:
-	void OnEditableCheckToggled(void);
+   void OnEditableCheckToggled(void);
 
-	Gtk::CheckButton mEditableCheck;
-	Gtk::Entry mEntry;
-    view::DeadEntry mDeadEntry;
+   Gtk::CheckButton mEditableCheck;
+   Gtk::Entry mEntry;
+   view::DeadEntry mDeadEntry;
 };
 
 
 AppWindow::AppWindow()
 {
-	set_title("DeadEntry Test");
-	set_border_width(12);
-	set_default_size(300, 200);
+   set_title("DeadEntry Test");
+   set_border_width(12);
+   set_default_size(300, 200);
 
-	Gtk::VBox *vbox = new Gtk::VBox(false, 6);
-	vbox->show();
-	add(*vbox);
+   Gtk::VBox *vbox = new Gtk::VBox(false, 6);
+   vbox->show();
+   add(*vbox);
 
-	mEntry.show();
-	vbox->pack_start(mEntry, false, true, 0);
-	mEntry.set_text("Standard Gtk::Entry");
+   mEntry.show();
+   vbox->pack_start(mEntry, false, true, 0);
+   mEntry.set_text("Standard Gtk::Entry");
 
-	mDeadEntry.show();
-	vbox->pack_start(mDeadEntry, false, true, 0);
-	mDeadEntry.set_text("view::DeadEntry");
+   mDeadEntry.show();
+   vbox->pack_start(mDeadEntry, false, true, 0);
+   mDeadEntry.set_text("view::DeadEntry");
 
-	mEditableCheck.show();
-	vbox->pack_start(mEditableCheck, false, true, 0);
-	mEditableCheck.set_label("Editable entries");
+   mEditableCheck.show();
+   vbox->pack_start(mEditableCheck, false, true, 0);
+   mEditableCheck.set_label("Editable entries");
 
-	sigc::slot<void> editableCheckToggledSlot =
-		sigc::mem_fun(this, &AppWindow::OnEditableCheckToggled);
-	mEditableCheck.signal_toggled().connect(editableCheckToggledSlot);
-	editableCheckToggledSlot();
+   sigc::slot<void> editableCheckToggledSlot =
+      sigc::mem_fun(this, &AppWindow::OnEditableCheckToggled);
+   mEditableCheck.signal_toggled().connect(editableCheckToggledSlot);
+   editableCheckToggledSlot();
 }
 
 
 void
 AppWindow::OnEditableCheckToggled(void)
 {
-	bool editable = mEditableCheck.get_active();
+   bool editable = mEditableCheck.get_active();
 
-	mEntry.set_editable(editable);
-	mDeadEntry.set_editable(editable);
+   mEntry.set_editable(editable);
+   mDeadEntry.set_editable(editable);
 }
 
 
 int
-main(int argc,      // IN:
+main(int argc,     // IN:
      char *argv[]) // IN:
 {
-    Gtk::Main kit(&argc, &argv);
-    AppWindow app;
-    Gtk::Main::run(app);
+   Gtk::Main kit(&argc, &argv);
+   AppWindow app;
+   Gtk::Main::run(app);
 
-    return 0;
+   return 0;
 }

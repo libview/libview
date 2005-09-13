@@ -38,38 +38,38 @@ class AppWindow
    : public Gtk::Window
 {
 public:
-    AppWindow();
+   AppWindow();
 
 private:
-    view::WrapLabel mLabel;
+   view::WrapLabel mLabel;
 };
 
 
 AppWindow::AppWindow()
 {
-	set_title("WrapLabel Test");
-	set_border_width(12);
-	set_default_size(300, 200);
+   set_title("WrapLabel Test");
+   set_border_width(12);
+   set_default_size(300, 200);
 
-    mLabel.show();
-    add(mLabel);
-	mLabel.set_alignment(0, 0);
-    mLabel.set_markup("This is a very long label that should span many lines. "
-                      "It's a good example of what the WrapLabel can do, and "
-                      "includes formatting, like <b>bold</b>, <i>italic</i>, "
-                      "and <u>underline</u>. The window can be wrapped to any "
-                      "width, unlike the standard Gtk::Label, which is set to "
-                      "a certain wrap width.");
+   mLabel.show();
+   add(mLabel);
+   mLabel.set_alignment(0, 0);
+   mLabel.set_markup("This is a very long label that should span many lines. "
+                    "It's a good example of what the WrapLabel can do, and "
+                    "includes formatting, like <b>bold</b>, <i>italic</i>, "
+                    "and <u>underline</u>. The window can be wrapped to any "
+                    "width, unlike the standard Gtk::Label, which is set to "
+                    "a certain wrap width.");
 }
 
 
 int
-main(int argc,      // IN:
+main(int argc,     // IN:
      char *argv[]) // IN:
 {
-    Gtk::Main kit(&argc, &argv);
-    AppWindow app;
-    Gtk::Main::run(app);
+   Gtk::Main kit(&argc, &argv);
+   AppWindow app;
+   Gtk::Main::run(app);
 
-    return 0;
+   return 0;
 }
