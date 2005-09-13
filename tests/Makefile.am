@@ -1,5 +1,6 @@
 noinst_PROGRAMS = \
-	test-drawer
+	test-drawer \
+	test-wrap-label
 
 
 common_ldflags = \
@@ -9,6 +10,10 @@ common_ldflags = \
 
 test_drawer_SOURCES = test-drawer.cc
 test_drawer_LDADD   = $(common_ldflags)
+
+
+test_wrap_label_SOURCES = test-wrap-label.cc
+test_wrap_label_LDADD   = $(common_ldflags)
 
 
 INCLUDES = \

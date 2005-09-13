@@ -1,3 +1,10 @@
+Mon Sep 12 17:10:08 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
+
+	* tests/.cvsignore:
+	* tests/Makefile.am:
+	A tests/test-wrap-label.cc:
+	  - Added a test program for view::WrapLabel.
+
 Sat Sep 10 12:19:23 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
 
 	* Makefile.am:

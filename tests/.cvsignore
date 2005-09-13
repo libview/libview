@@ -1,6 +1,7 @@
 Makefile
 Makefile.in
 test-drawer
+test-wrap-label
 .deps
 .libs
 *.o
