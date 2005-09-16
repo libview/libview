@@ -187,6 +187,10 @@ WrapLabel::on_size_allocate(Gtk::Allocation &alloc) // IN: Our allocation
 void
 WrapLabel::SetWrapWidth(size_t width) // IN: The wrap width
 {
+	if (width == 0) {
+		return;
+	}
+
    /*
     * We may need to reset the wrap width, so do this regardless of whether
     * or not we've changed the width.

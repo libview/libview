@@ -1,3 +1,16 @@
+Fri Sep 16 13:06:58 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
+
+	* libview/wrapLabel.cc:
+	  - Fixed a bug in WrapLabel's wrapping. Under some rare cases, the
+	    WrapLabel would temporarily grow very tall, causing the window it
+	    is in to be resized. This bug has been seen only once, when used in a
+	    vbox subclass widget that wasn't shown until later on in the dialog.
+	    The proble mturned out tobe that due to how we handle the size
+	    requests and allocation, the wrap width would temporarily be set to
+	    0, before being reset to a sane width. We now just check if the
+	    wrap width is 0 in SetWrapWidth, and ignore it. This doesn't appear
+	    to break anything, and it fixes this bug,
+
 Fri Sep 16 13:05:40 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
 
 	* configure.ac:
