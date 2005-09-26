@@ -86,7 +86,6 @@
  */
 
 
-#include <libview/defines.h>
 #include <libview/reparenter.hh>
 
 

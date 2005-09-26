@@ -73,7 +73,6 @@
  */
 
 
-#include <libview/defines.h>
 #include <libview/ovBox.h>
 
 

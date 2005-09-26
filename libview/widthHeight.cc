@@ -28,7 +28,6 @@
  */
 
 
-#include <libview/defines.h>
 #include <libview/widthHeight.hh>
 
 

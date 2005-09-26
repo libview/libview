@@ -30,7 +30,6 @@
 
 #include <gtkmm/toggletoolbutton.h>
 
-#include <libview/defines.h>
 #include <libview/menuToggleAction.hh>
 
 

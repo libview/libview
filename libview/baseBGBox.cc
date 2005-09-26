@@ -51,7 +51,6 @@
  */
 
 #include <libview/baseBGBox.hh>
-#include <libview/defines.h>
 
 
 namespace view {
