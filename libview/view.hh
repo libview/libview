@@ -34,6 +34,7 @@
 
 #include <libview/actionGroup.hh>
 #include <libview/baseBGBox.hh>
+#include <libview/contentBox.hh>
 #include <libview/header.hh>
 #include <libview/menuToggleAction.hh>
 #include <libview/motionTracker.hh>
@@ -43,7 +44,6 @@
 #include <libview/toolTip.hh>
 #include <libview/uiGroup.hh>
 #include <libview/viewport.hh>
-#include <libview/visibilityBox.hh>
 #include <libview/weakPtr.hh>
 #include <libview/widthHeight.hh>
 #include <libview/wrapLabel.hh>

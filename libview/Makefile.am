@@ -5,6 +5,7 @@ lib_LTLIBRARIES = libview.la
 viewinc_HEADERS = \
 	actionGroup.hh \
 	baseBGBox.hh \
+	contentBox.hh \
 	deadEntry.hh \
 	defines.h \
 	drawer.h \
@@ -20,13 +21,13 @@ viewinc_HEADERS = \
 	undoableTextView.hh \
 	view.hh \
 	viewport.hh \
-	visibilityBox.hh \
 	weakPtr.hh \
 	widthHeight.hh \
 	wrapLabel.hh
 
 libview_la_SOURCES = \
 	baseBGBox.cc \
+	contentBox.cc \
 	deadEntry.cc \
 	drawer.c \
 	header.cc \
@@ -40,7 +41,6 @@ libview_la_SOURCES = \
 	uiGroup.cc \
 	undoableTextView.cc \
 	viewport.cc \
-	visibilityBox.cc \
 	widthHeight.cc \
 	wrapLabel.cc
 

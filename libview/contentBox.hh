@@ -22,13 +22,13 @@
  * *************************************************************************/
 
 /*
- * visibilityBox.hh --
+ * contentBox.hh --
  *
- *      Declarations for the view::VisibilityBox class.
+ *      Declarations for the view::ContentBox class.
  */
 
-#ifndef LIBVIEW_VISIBILITYBOX_HH
-#   define LIBVIEW_VISIBILITYBOX_HH
+#ifndef LIBVIEW_CONTENTBOX_HH
+#   define LIBVIEW_CONTENTBOX_HH
 
 
 #include <gtkmm/box.h>
@@ -39,7 +39,7 @@
 namespace view {
 
 
-class VisibilityBox
+class ContentBox
    : public Gtk::HBox
 {
 public:
@@ -49,7 +49,7 @@ public:
       HIDE,
    };
 
-   VisibilityBox(void);
+   ContentBox(void);
    void SetMode(Mode value);
 
 protected:
@@ -61,8 +61,8 @@ private:
    void Disconnect(void);
    void UpdateVisibility(void);
    void UpdateVisibilityWhenTracking(void);
-   bool IsVisible(Gtk::Widget *target);
-   bool IsVisibilityContainerVisible(Gtk::Container *target);
+   bool WidgetHasContent(Gtk::Widget *widget);
+   bool ContainerHasContent(Gtk::Container *container);
 
    Mode mMode;
    Gtk::Widget *mChild;
@@ -76,4 +76,4 @@ private:
 } /* namespace view */
 
 
-#endif /* LIBVIEW_VISIBILITYBOX_HH */
+#endif /* LIBVIEW_CONTENTBOX_HH */
