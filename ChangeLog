@@ -1,4 +1,4 @@
-Mon Sep 26 15:45:41 PDT 2005  Régis Duchesne <hpreg@vmware.com>
+Mon Sep 26 15:45:41 PDT 2005  RÃ©gis Duchesne <hpreg@vmware.com>
 
 	* libview/deadEntry.cc:
 	* libview/motionTracker.hh:
@@ -6,7 +6,7 @@ Mon Sep 26 15:45:41 PDT 2005  Régis Duchesne <hpreg@vmware.com>
 	  - Consistently include files using <> (instead of "") and a libview/
 	    prefix.
 
-Mon Sep 26 15:37:51 PDT 2005  Régis Duchesne <hpreg@vmware.com>
+Mon Sep 26 15:37:51 PDT 2005  RÃ©gis Duchesne <hpreg@vmware.com>
 
 	* libview/baseBGBox.cc:
 	* libview/defines.h:
@@ -16,7 +16,7 @@ Mon Sep 26 15:37:51 PDT 2005  Régis Duchesne <hpreg@vmware.com>
 	* libview/widthHeight.cc:
 	  - Stop including defines.h unnecessarily.
 
-Mon Sep 26 15:22:01 PDT 2005  Régis Duchesne <hpreg@vmware.com>
+Mon Sep 26 15:22:01 PDT 2005  RÃ©gis Duchesne <hpreg@vmware.com>
 
 	D libview/visibilityBox.hh:
 	D libview/visibilityBox.cc:
@@ -114,7 +114,7 @@ Thu Sep 08 14:54:46 PDT 2005  Christian Hammond <chipx86@chipx86.com>
 Thu Sep 08 14:49:27 PDT 2005  Christian Hammond <chipx86@chipx86.com>
 
 	* libview/reparenter.cc:
-	  - Cross-porting Régis's fix for the reparenter:
+	  - Cross-porting RÃ©gis's fix for the reparenter:
 
 	    "gtk_widget_reparent() sometimes actually unrealizes the widget:
 	    when the new parent is not realized, which is what happens here.
