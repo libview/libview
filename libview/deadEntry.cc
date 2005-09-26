@@ -29,7 +29,7 @@
  */
 
 
-#include "deadEntry.hh"
+#include <libview/deadEntry.hh>
 
 
 namespace view {

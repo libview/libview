@@ -43,7 +43,7 @@
 
 #include <gtkmm/widget.h>
 
-#include "libview/weakPtr.hh"
+#include <libview/weakPtr.hh>
 
 namespace view {
 

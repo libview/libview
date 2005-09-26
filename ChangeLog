@@ -1,3 +1,11 @@
+Mon Sep 26 15:45:41 PDT 2005  Régis Duchesne <hpreg@vmware.com>
+
+	* libview/deadEntry.cc:
+	* libview/motionTracker.hh:
+	* libview/toolTip.hh:
+	  - Consistently include files using <> (instead of "") and a libview/
+	    prefix.
+
 Mon Sep 26 15:37:51 PDT 2005  Régis Duchesne <hpreg@vmware.com>
 
 	* libview/baseBGBox.cc:

@@ -33,7 +33,7 @@
 
 #include <gtkmm/window.h>
 
-#include "libview/motionTracker.hh"
+#include <libview/motionTracker.hh>
 
 
 namespace view {
