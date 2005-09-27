@@ -1,3 +1,10 @@
+Tue Sep 27 14:45:29 PDT 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* NEWS:
+	* configure.ac:
+	  - Updated the NEWS.
+	  - Bumped the version 0.5.2 and the .so version number.
+
 Mon Sep 26 15:45:41 PDT 2005  Régis Duchesne <hpreg@vmware.com>
 
 	* libview/deadEntry.cc:
