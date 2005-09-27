@@ -45,6 +45,8 @@ libview_la_SOURCES = \
 	wrapLabel.cc
 
 libview_la_LIBADD = $(VIEW_LIBS)
+libview_la_LDFLAGS = \
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
 
 INCLUDES = \

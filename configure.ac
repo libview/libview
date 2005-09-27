@@ -8,12 +8,12 @@ dnl # libtool versioning
 dnl ################################################################
 dnl #
 dnl # +1 :  0 : +1   == new interface that does not break old one.
-dnl # +1 :  0 :  0   == removed an interface. Breaks old apps.
+dnl # +1 :  0 :  ?   == removed an interface. Breaks old apps.
 dnl #  ? : +1 :  ?   == internal changes that doesn't break anything.
 dnl #
 dnl # CURRENT : REVISION : AGE
 dnl #
-LT_CURRENT=2
+LT_CURRENT=1
 LT_REVISION=0
 LT_AGE=0
 
