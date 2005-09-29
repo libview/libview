@@ -10,6 +10,7 @@ viewinc_HEADERS = \
 	defines.h \
 	drawer.h \
 	header.hh \
+	ipEntry.hh \
 	menuToggleAction.hh \
 	motionTracker.hh \
 	ovBox.h \
@@ -31,6 +32,7 @@ libview_la_SOURCES = \
 	deadEntry.cc \
 	drawer.c \
 	header.cc \
+	ipEntry.cc \
 	menuToggleAction.cc \
 	motionTracker.cc \
 	ovBox.c \

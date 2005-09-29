@@ -3,6 +3,7 @@ Makefile.in
 test-dead-entry
 test-drawer
 test-header-bgbox
+test-ip-entry
 test-wrap-label
 .deps
 .libs

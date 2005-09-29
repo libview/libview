@@ -2,6 +2,7 @@ noinst_PROGRAMS = \
 	test-dead-entry \
 	test-drawer \
 	test-header-bgbox \
+	test-ip-entry \
 	test-wrap-label
 
 
@@ -20,6 +21,10 @@ test_drawer_LDADD   = $(common_ldflags)
 
 test_header_bgbox_SOURCES = test-header-bgbox.cc
 test_header_bgbox_LDADD   = $(common_ldflags)
+
+
+test_ip_entry_SOURCES = test-ip-entry.cc
+test_ip_entry_LDADD   = $(common_ldflags)
 
 
 test_wrap_label_SOURCES = test-wrap-label.cc

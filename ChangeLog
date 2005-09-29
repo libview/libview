@@ -1,3 +1,15 @@
+Thu Sep 29 15:57:51 PDT 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/Makefile.am:
+	A libview/ipEntry.cc:
+	A libview/ipEntry.hh:
+	* tests/.cvsignore:
+	* tests/Makefile.am:
+	A tests/test-ip-entry.cc:
+	* configure.ac:
+	  - Added the view::IPEntry widget.
+	  - Bumped the version to 0.5.2.90.
+
 ==================== 0.5.2 ====================
 
 Tue Sep 27 15:19:51 PDT 2005  Christian Hammond <chipx86@chipx86.com>
