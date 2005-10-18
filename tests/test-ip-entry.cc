@@ -30,9 +30,12 @@
 
 
 #include <gtkmm/box.h>
+#include <gtkmm/entry.h>
 #include <gtkmm/main.h>
 #include <gtkmm/window.h>
+#include <pangomm/tabarray.h>
 #include <libview/ipEntry.hh>
+#include <libview/fieldEntry.hh>
 
 
 class AppWindow
@@ -43,10 +46,40 @@ public:
 
 private:
    view::IPEntry mIPEntry;
+   view::FieldEntry mEntry;
 };
 
 
+#if 0
+bool
+MyEntry::IsValidIP(const Glib::ustring& ip)
+   const
+{
+   int groupChars = 0;
+
+   for (int i = 0; i < ip.length(); i++) {
+      if (ip[i] >= '0' && ip[i] <= '9') {
+         groupChars++;
+      } else if (ip[i] != '.') {
+         return false;
+      }
+
+      if (ip[i] == '.' || i == ip.length() - 1) {
+         if (groupChars == 0 || groupChars > 3) {
+            return false;
+         }
+
+         groupChars = 0;
+      }
+   }
+
+   return true;
+}
+#endif
+
+
 AppWindow::AppWindow()
+	: mEntry(4, '.', 3)
 {
    set_title("IPEntry Test");
    set_border_width(12);
@@ -58,6 +91,12 @@ AppWindow::AppWindow()
 
    mIPEntry.show();
    vbox->pack_start(mIPEntry, false, false, 0);
+
+   mEntry.show();
+   vbox->pack_start(mEntry, false, false, 0);
+   mEntry.set_text("192.168.0.3");
+   //mEntry.set_text("1.2.3.4");
+   //mEntry.set_text("1\t.\t1\t.\t0\t.\t1");
 }
 
 

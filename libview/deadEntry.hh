@@ -23,7 +23,7 @@
 
 
 /*
- * deadEntry.cc --
+ * deadEntry.hh --
  *
  *     An entry widget that sets itself greyed out when not editable.
  */

@@ -9,6 +9,7 @@ viewinc_HEADERS = \
 	deadEntry.hh \
 	defines.h \
 	drawer.h \
+	fieldEntry.hh \
 	header.hh \
 	ipEntry.hh \
 	menuToggleAction.hh \
@@ -31,6 +32,7 @@ libview_la_SOURCES = \
 	contentBox.cc \
 	deadEntry.cc \
 	drawer.c \
+	fieldEntry.cc \
 	header.cc \
 	ipEntry.cc \
 	menuToggleAction.cc \
