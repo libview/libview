@@ -9,6 +9,7 @@ viewinc_HEADERS = \
 	deadEntry.hh \
 	defines.h \
 	drawer.h \
+	fieldEntry.hh \
 	header.hh \
 	ipEntry.hh \
 	menuToggleAction.hh \
@@ -20,6 +21,7 @@ viewinc_HEADERS = \
 	toolTip.hh \
 	uiGroup.hh \
 	undoableTextView.hh \
+	utils.hh \
 	view.hh \
 	viewport.hh \
 	weakPtr.hh \
@@ -31,6 +33,7 @@ libview_la_SOURCES = \
 	contentBox.cc \
 	deadEntry.cc \
 	drawer.c \
+	fieldEntry.cc \
 	header.cc \
 	ipEntry.cc \
 	menuToggleAction.cc \
@@ -42,6 +45,7 @@ libview_la_SOURCES = \
 	toolTip.cc \
 	uiGroup.cc \
 	undoableTextView.cc \
+	utils.cc \
 	viewport.cc \
 	widthHeight.cc \
 	wrapLabel.cc

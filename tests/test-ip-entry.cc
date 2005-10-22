@@ -30,9 +30,12 @@
 
 
 #include <gtkmm/box.h>
+#include <gtkmm/entry.h>
 #include <gtkmm/main.h>
 #include <gtkmm/window.h>
+#include <pangomm/tabarray.h>
 #include <libview/ipEntry.hh>
+#include <libview/fieldEntry.hh>
 
 
 class AppWindow
@@ -42,8 +45,38 @@ public:
    AppWindow();
 
 private:
-   view::IPEntry mIPEntry;
+   view::IPEntry mEntry1;
+   view::IPEntry mEntry2;
+   Gtk::Entry mEntry3;
 };
+
+
+#if 0
+bool
+MyEntry::IsValidIP(const Glib::ustring& ip)
+   const
+{
+   int groupChars = 0;
+
+   for (int i = 0; i < ip.length(); i++) {
+      if (ip[i] >= '0' && ip[i] <= '9') {
+         groupChars++;
+      } else if (ip[i] != '.') {
+         return false;
+      }
+
+      if (ip[i] == '.' || i == ip.length() - 1) {
+         if (groupChars == 0 || groupChars > 3) {
+            return false;
+         }
+
+         groupChars = 0;
+      }
+   }
+
+   return true;
+}
+#endif
 
 
 AppWindow::AppWindow()
@@ -56,8 +89,43 @@ AppWindow::AppWindow()
    vbox->show();
    add(*vbox);
 
-   mIPEntry.show();
-   vbox->pack_start(mIPEntry, false, false, 0);
+   mEntry1.show();
+   vbox->pack_start(mEntry1, false, false);
+
+   mEntry2.show();
+   vbox->pack_start(mEntry2, false, false);
+
+   /*
+    * Real Gtk::Entry to visually check the proper alignment of the delimiters
+    * of the FieldEntry. You can also use it to cut/paste and DnD between both
+    * kinds of entries.
+    */
+   mEntry3.show();
+   vbox->pack_start(mEntry3, false, false);
+   mEntry3.set_text("222.111.222.111");
+
+   /* Set value by quad-dotted. */
+   mEntry1.SetIP("10.0.0.1");
+   if (mEntry1.GetText() != "10.0.0.1") {
+      printf("Test 1 failed\n");
+   }
+
+   /*
+    * Set a field position beyond the length of a field, check that we cap
+    * it.
+    */
+   mEntry1.SetCurrentField(1, 3);
+   size_t posInField;
+   if (!(   mEntry1.GetCurrentField(&posInField) == 1
+         && posInField == 1)) {
+      printf("Test 2 failed\n");
+   }
+
+   /* Set value by number. */
+   mEntry1.SetDotlessIP((192 << 24) + (168 << 16) + (0 << 8) + (3 << 0));
+   if (mEntry1.GetText() != "192.168.0.3") {
+      printf("Test 3 failed\n");
+   }
 }
 
 

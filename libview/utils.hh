@@ -23,50 +23,22 @@
 
 
 /*
- * ipEntry.hh --
+ * utils.hh --
  *
- *      Entry box for IP addresses. Checks for validity as users type.
+ *      A set of general utility functions.
  */
 
 
-#ifndef LIBVIEW_IP_ENTRY_HH
-#define LIBVIEW_IP_ENTRY_HH
-
-
-#include <libview/fieldEntry.hh>
+#include <gtkmm/widget.h>
 
 
 namespace view {
+namespace utils {
 
 
-class IPEntry
-   : public FieldEntry
-{
-public:
-   enum Mode { IPV4, IPV6 };
-
-   IPEntry(Mode = IPV4);
-
-   void SetIP(const Glib::ustring& ip);
-   Glib::ustring GetIP(void) const;
-
-   void SetDotlessIP(unsigned long ip);
-   unsigned long GetDotlessIP(void) const;
-
-protected:
-   virtual bool GetIsFieldValid(const Glib::ustring& str) const;
-   virtual Glib::ustring GetAllowedFieldChars(size_t field) const;
-
-   virtual bool on_focus_out_event(GdkEventFocus* event);
-
-private:
-   void NormalizeField(unsigned int field);
-
-   Mode mMode;
-};
+size_t GetLargestCharStrWidth(Gtk::Widget& widget, Glib::ustring& charset,
+                              size_t numDups);
 
 
+} /* namespace utils */
 } /* namespace view */
-
-
-#endif /* LIBVIEW_IP_ENTRY_HH */

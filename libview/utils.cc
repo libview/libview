@@ -23,50 +23,61 @@
 
 
 /*
- * ipEntry.hh --
+ * utils.cc --
  *
- *      Entry box for IP addresses. Checks for validity as users type.
+ *      A set of general utility functions.
  */
 
 
-#ifndef LIBVIEW_IP_ENTRY_HH
-#define LIBVIEW_IP_ENTRY_HH
-
-
-#include <libview/fieldEntry.hh>
+#include <libview/utils.hh>
 
 
 namespace view {
+namespace utils {
 
 
-class IPEntry
-   : public FieldEntry
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * view::utils::GetMaxCharWidth --
+ *
+ *      Returns the widest character in the set of passed characters,
+ *      taking into account the style used in the specified widget.
+ *
+ * Results:
+ *      The width of the widest character.
+ *
+ * Side effects:
+ *      None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+size_t
+GetLargestCharStrWidth(Gtk::Widget& widget,    // IN: The target widget
+                       Glib::ustring& charset, // IN: The set of characters
+                       size_t numDups)         // IN: Number of chars to dup.
 {
-public:
-   enum Mode { IPV4, IPV6 };
+   g_return_val_if_fail(numDups > 0, 0);
 
-   IPEntry(Mode = IPV4);
+   size_t maxWidth = 0;
+   Glib::RefPtr<Pango::Layout> layout = widget.create_pango_layout("");
 
-   void SetIP(const Glib::ustring& ip);
-   Glib::ustring GetIP(void) const;
+   for (int i = 0; i < charset.length(); i++) {
+      layout->set_text(Glib::ustring(numDups, charset[i]));
 
-   void SetDotlessIP(unsigned long ip);
-   unsigned long GetDotlessIP(void) const;
+      int width;
+      int height;
+      layout->get_pixel_size(width, height);
 
-protected:
-   virtual bool GetIsFieldValid(const Glib::ustring& str) const;
-   virtual Glib::ustring GetAllowedFieldChars(size_t field) const;
+      if (width > maxWidth) {
+         maxWidth = width;
+      }
+   }
 
-   virtual bool on_focus_out_event(GdkEventFocus* event);
-
-private:
-   void NormalizeField(unsigned int field);
-
-   Mode mMode;
-};
+   return maxWidth;
+}
 
 
+} /* namespace utils */
 } /* namespace view */
-
-
-#endif /* LIBVIEW_IP_ENTRY_HH */

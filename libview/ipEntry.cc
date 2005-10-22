@@ -25,13 +25,14 @@
 /*
  * ipEntry.cc --
  *
- *      Entry box for IP addresses. Checks for validity as users type. signals
- *      when entry's done (user hits enter or the box loses focus).
+ *     Entry box for IP addresses. Checks for validity as users type.
  */
 
 
-#include <sstream>
 #include <libview/ipEntry.hh>
+#include <sigc++/adaptors/compose.h>
+#include <errno.h>
+#include <sstream>
 
 
 namespace view {
@@ -42,195 +43,45 @@ namespace view {
  *
  * view::IPEntry::IPEntry --
  *
- *      Constructor.
+ *     Constructor.
  *
  * Results:
- *      None.
+ *     None.
  *
  * Side Effects:
- *      None.
+ *     None.
  *
  *-----------------------------------------------------------------------------
  */
 
-IPEntry::IPEntry(void)
-   : Frame(),
-     mDirty(false),
-     mEditable(true),
-     mSetting(false),
-     mDontSkip(false)
+IPEntry::IPEntry(Mode mode) // IN:
+   : FieldEntry(4, 3, '.'),
+     mMode(mode)
 {
-   set_shadow_type(Gtk::SHADOW_IN);
-
-   mBox.show();
-   add(mBox);
-
-   for (unsigned int i = 0; i < 4; i++) {
-      mOcts.push_back(Gtk::manage(new Gtk::Entry()));
-      mOcts[i]->show();
-
-      if (i == 3) {
-         mBox.pack_start(*mOcts[i], true, true);
-         mOcts[i]->set_alignment(0);
-      } else {
-         mBox.pack_start(*mOcts[i], false, false);
-         mOcts[i]->set_alignment(.5);
-      }
-
-      mOcts[i]->set_has_frame(false);
-      mOcts[i]->set_max_length(4);
-      mOcts[i]->set_width_chars(3);
-      mOcts[i]->signal_focus_out_event().connect(
-         sigc::bind_return(sigc::bind(sigc::mem_fun(this,
-                                                    &IPEntry::OnDone), i),
-                           false));
-      mOcts[i]->signal_activate().connect(
-         sigc::bind(sigc::mem_fun(this, &IPEntry::OnDone),
-                    static_cast<GdkEventFocus *>(NULL), i));
-      mOcts[i]->signal_changed().connect(
-         sigc::bind(sigc::mem_fun(this, &IPEntry::OnChanged), i));
-
-      if (i < 3) {
-         mDots.push_back(Gtk::manage(new Gtk::Entry()));
-         mDots[i]->show();
-         mBox.pack_start(*mDots[i], false, false);
-         mDots[i]->set_has_frame(false);
-         mDots[i]->set_width_chars(1);
-         mOcts[i]->set_alignment(.5);
-         mDots[i]->set_editable(false);
-         mDots[i]->property_can_focus() = false;
-         mDots[i]->set_text(".");
-      }
-   }
+   currentFieldChanged.connect(sigc::mem_fun(this, &IPEntry::NormalizeField));
 }
 
 
 /*
  *-----------------------------------------------------------------------------
  *
- * view::IPEntry::SetEditable --
+ * view::IPEntry::SetIP --
  *
- *      Sets the editable status of the entry.
+ *      Sets the IP address of the entry.
  *
  * Results:
  *      None.
  *
- * Side Effects:
+ * Side effects:
  *      None.
  *
  *-----------------------------------------------------------------------------
  */
 
 void
-IPEntry::SetEditable(bool edit) // IN
+IPEntry::SetIP(const Glib::ustring& ip) // IN:
 {
-   mEditable = edit;
-
-   for (unsigned int i = 0; i < 4; i++) {
-      mOcts[i]->set_editable(mEditable);
-   }
-}
-
-
-/*
- *-----------------------------------------------------------------------------
- *
- * view::IPEntry::OnDone --
- *
- *      Callback for when the entry loses focus or the user hits enter.
- *      Fills in a blank octet with 0.
- *      Emits the entryDone signal if the entry has been changed.
- *
- * Results:
- *      None.
- *
- * Side Effects:
- *      None.
- *
- *-----------------------------------------------------------------------------
- */
-
-void
-IPEntry::OnDone(GdkEventFocus* event, // IN
-                unsigned int oct)     // IN
-{
-   if (mEditable) {
-      if (mOcts[oct]->get_text().empty()) {
-         mSetting = true;
-         mOcts[oct]->set_text("0");
-         mSetting = false;
-         mDirty = true;
-         mDontSkip = false;
-      }
-
-      if (mDirty) {
-         entryDone.emit(GetIP());
-         mDirty = false;
-      }
-   }
-}
-
-
-/*
- *-----------------------------------------------------------------------------
- *
- * view::IPEntry::OnChanged --
- *
- *      Callback for when the text in an octet changes.  Erases any
- *      non-numeric characters and caps each octet at 255.
- *
- * Results:
- *      None.
- *
- * Side Effects:
- *      None.
- *
- *-----------------------------------------------------------------------------
- */
-
-void
-IPEntry::OnChanged(unsigned int oct) // IN
-{
-   if (mEditable && !mSetting) {
-      bool changed = false;
-      bool focusOut = false;
-      Glib::ustring str = mOcts[oct]->get_text();
-
-      for (unsigned int i = 0; i < str.size(); i++) {
-         focusOut = (str[i] == '.' && i == (str.size() - 1) && !mDontSkip);
-         if (str[i] < '0' || str[i] > '9' || i > 2) {
-            str.erase(i, 1);
-            i--;
-            changed = true;
-         }
-      }
-
-      mDontSkip = (mDontSkip && str.empty());
-
-      if (changed) {
-         mSetting = true;
-         mOcts[oct]->set_text(str);
-         mSetting = false;
-      }
-
-      if (atoi(str.c_str()) > 255) {
-         mSetting = true;
-         mOcts[oct]->set_text("255");
-         mSetting = false;
-      }
-
-      mDirty = true;
-
-      if (str.size() >= 3) {
-         focusOut = true;
-         mDontSkip = true;
-      }
-
-      if (focusOut && oct < 3) {
-         mOcts[oct + 1]->grab_focus();
-         OnDone(NULL, oct);
-      }
-   }
+   SetText(ip);
 }
 
 
@@ -239,30 +90,98 @@ IPEntry::OnChanged(unsigned int oct) // IN
  *
  * view::IPEntry::GetIP --
  *
- *      Returns the IP in the entry as a 32-bit long int.
+ *      Returns the IP address of the entry.
  *
  * Results:
- *      None.
+ *      The IP address in text form.
  *
- * Side Effects:
+ * Side effects:
  *      None.
  *
  *-----------------------------------------------------------------------------
  */
 
-long
+Glib::ustring
 IPEntry::GetIP(void)
+   const
 {
-   long ip = 0;
+   return GetText();
+}
 
-   for (unsigned int i = 0; i < 4; i++) {
-      int oct = atoi(mOcts[i]->get_text().c_str());
 
-      if (oct < 0 || oct > 255) {
-         return 0;
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * view::IPEntry::SetDotlessIP --
+ *
+ *      Sets the dotless (numeric form) IP address.
+ *
+ * Results:
+ *      None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+void
+IPEntry::SetDotlessIP(unsigned long ip) // IN:
+{
+   switch (mMode) {
+   case IPV4:
+      for (unsigned int i = 0; i < GetFieldCount(); i++) {
+         std::ostringstream stream;
+         stream << ((ip << (i * 8)) >> 24);
+         SetFieldText(i, stream.str());
+      }
+      break;
+
+   default:
+      g_assert_not_reached();
+   }
+
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * view::IPEntry::GetDotlessIP --
+ *
+ *      Returns the dotless (numeric form) IP address.
+ *
+ * Results:
+ *      The dotless IP address.
+ *
+ * Side effects:
+ *      None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+unsigned long
+IPEntry::GetDotlessIP(void)
+   const
+{
+   unsigned long ip = 0;
+
+   switch (mMode) {
+   case IPV4:
+      for (unsigned int i = 0; i < GetFieldCount(); i++) {
+         int oct = atoi(GetFieldText(i).c_str());
+
+         if (oct < 0 || oct > 255) {
+            return 0;
+         }
+
+         ip |= (oct << ((3 - i) * 8));
       }
 
-      ip |= oct << ((3 - i) * 8);
+      break;
+
+   default:
+      g_assert_not_reached();
    }
 
    return ip;
@@ -272,31 +191,129 @@ IPEntry::GetIP(void)
 /*
  *-----------------------------------------------------------------------------
  *
- * view::IPEntry::SetIP --
+ * view::IPEntry::GetIsFieldValid --
  *
- *      Takes a 32-bit long int and sets the displayed IP.
+ *      Tests if the specified text is valid for a field.
+ *
+ * Results:
+ *      true if the text is valid, or false.
+ *
+ * Side effects:
+ *      None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+bool
+IPEntry::GetIsFieldValid(const Glib::ustring& str) // IN: Field to validate
+    const
+{
+   for (int i = 0; i < str.length(); i++) {
+      if (str[i] < '0' || str[i] > '9') {
+         return false;
+      }
+   }
+
+   return atoi(str.c_str()) < 256;
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * view::IPEntry::GetAllowedFieldChars --
+ *
+ *      Returns a list of allowed characters for IP fields. This takes into
+ *      account IPV4 and IPV6.
+ *
+ * Results:
+ *      The list of allowed characters.
+ *
+ * Side effects:
+ *      None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+Glib::ustring
+IPEntry::GetAllowedFieldChars(size_t field) // IN:
+   const
+{
+   Glib::ustring chars = "";
+
+   switch (mMode) {
+   case IPV4:
+      chars = "0123456789";
+      break;
+
+   case IPV6:
+      chars = "0123456789ABCDEF";
+      break;
+
+   default:
+      g_assert_not_reached();
+   }
+
+   return chars;
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * view::IPEntry::on_focus_out_event --
+ *
+ *      Focus out event handler. Calls NormalizeField with the IP entry's
+ *      current field.
+ *
+ * Results:
+ *      The result of the parent class's on_focus_out_event.
+ *
+ * Side effects:
+ *      None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+bool
+IPEntry::on_focus_out_event(GdkEventFocus* event) // IN: Focus event
+{
+   bool result = FieldEntry::on_focus_out_event(event);
+
+   NormalizeField(GetCurrentField());
+
+   return result;
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * view::IPEntry::NormalizeField --
+ *
+ *      Normalizes the text in the current field. This essentially strips out
+ *      leading zeros from the field. This happens any time the focus is
+ *      removed or the current field changes.
  *
  * Results:
  *      None.
  *
- * Side Effects:
+ * Side effects:
  *      None.
  *
  *-----------------------------------------------------------------------------
  */
 
 void
-IPEntry::SetIP(long ip) // IN
+IPEntry::NormalizeField(unsigned int field) // IN: The field
 {
-   for (unsigned int i = 0; i < 4; i++) {
-      mSetting = true;
-      std::ostringstream intStream;
-      intStream << ((static_cast<unsigned long>(ip) << (i * 8)) >> 24);
-      mOcts[i]->set_text(intStream.str());
-      mSetting = false;
-   }
+   Glib::ustring text = GetFieldText(field);
 
-   mDirty = false;
+   if (text != "") {
+      std::ostringstream stream;
+      stream << atoi(text.c_str());
+      SetFieldText(field, stream.str());
+   }
 }
 
 

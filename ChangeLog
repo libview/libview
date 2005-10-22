@@ -1,3 +1,27 @@
+Fri Oct 21 18:39:12 PDT 2005  Régis Duchesne <hpreg@vmware.com>
+
+	* libview/fieldEntry.cc:
+	* libview/fieldEntry.hh:
+	* tests/test-ip-entry.cc:
+	  - Allow for no padding around the separator, so the FieldEntry is
+	    pixel identical to Gtk::Entry with the same content.
+	  - Put a tab stop at then end of the entry, so leftmost selection and
+	    righmost selection are symetrical and look good.
+	  - Prevent the entry from scrolling.
+
+Fri Oct 20 14:20:16 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
+
+	* libview/Makefile.am:
+	* libview/deadEntry.hh:
+	A libview/fieldEntry.cc:
+	A libview/fieldEntry.hh:
+	* libview/ipEntry.cc:
+	* libview/ipEntry.hh:
+	A libview/utils.cc:
+	A libview/utils.hh:
+	* tests/test-ip-entry.cc:
+	  - Added the FieldEntry widget.
+
 Thu Sep 29 15:57:51 PDT 2005  Christian Hammond <chipx86@chipx86.com>
 
 	* libview/Makefile.am:
