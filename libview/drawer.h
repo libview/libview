@@ -35,12 +35,12 @@
 #include <gtk/gtk.h>
 
 
-#define VIEW_TYPE_DRAWER ViewDrawer_GetType()
-#define VIEW_DRAWER(obj) GTK_CHECK_CAST((obj), VIEW_TYPE_DRAWER, ViewDrawer)
-#define VIEW_DRAWER_CLASS(klass) GTK_CHECK_CLASS_CAST((klass), VIEW_TYPE_DRAWER, \
-                                                   ViewDrawerClass)
-#define VIEW_IS_DRAWER(obj) GTK_CHECK_TYPE((obj), VIEW_TYPE_DRAWER)
-#define VIEW_IS_DRAWER_CLASS(klass) GTK_CHECK_CLASS_TYPE((klass), VIEW_TYPE_DRAWER)
+#define VIEW_TYPE_DRAWER            (ViewDrawer_GetType())
+#define VIEW_DRAWER(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), VIEW_TYPE_DRAWER, ViewDrawer))
+#define VIEW_DRAWER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), VIEW_TYPE_DRAWER, ViewDrawerClass))
+#define VIEW_IS_DRAWER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), VIEW_TYPE_DRAWER))
+#define VIEW_IS_DRAWER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), VIEW_TYPE_DRAWER))
+#define VIEW_DRAWER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), VIEW_TYPE_DRAWER, ViewDrawerClass))
 
 
 typedef struct _ViewDrawer ViewDrawer;
@@ -50,7 +50,7 @@ typedef struct _ViewDrawerClass ViewDrawerClass;
 G_BEGIN_DECLS
 
 
-GtkType ViewDrawer_GetType(void);
+GType ViewDrawer_GetType(void);
 
 GtkWidget *ViewDrawer_New(void);
 

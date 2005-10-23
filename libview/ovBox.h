@@ -27,6 +27,7 @@
  *      Declarations for the ViewOvBox GTK+ widget.
  */
 
+
 #ifndef LIBVIEW_OVBOX_H
 #define LIBVIEW_OVBOX_H
 
@@ -34,12 +35,12 @@
 #include <gtk/gtk.h>
 
 
-#define VIEW_TYPE_OV_BOX ViewOvBox_GetType()
-#define VIEW_OV_BOX(obj) GTK_CHECK_CAST((obj), VIEW_TYPE_OV_BOX, ViewOvBox)
-#define VIEW_OV_BOX_CLASS(klass) GTK_CHECK_CLASS_CAST((klass), VIEW_TYPE_OV_BOX, \
-                                                   ViewOvBoxClass)
-#define VIEW_IS_OV_BOX(obj) GTK_CHECK_TYPE((obj), VIEW_TYPE_OV_BOX)
-#define VIEW_IS_OV_BOX_CLASS(klass) GTK_CHECK_CLASS_TYPE((klass), VIEW_TYPE_OV_BOX)
+#define VIEW_TYPE_OV_BOX            (ViewOvBox_GetType())
+#define VIEW_OV_BOX(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), VIEW_TYPE_OV_BOX, ViewOvBox))
+#define VIEW_OV_BOX_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), VIEW_TYPE_OV_BOX, ViewOvBoxClass))
+#define VIEW_IS_OV_BOX(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), VIEW_TYPE_OV_BOX))
+#define VIEW_IS_OV_BOX_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), VIEW_TYPE_OV_BOX))
+#define VIEW_OV_BOX_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), VIEW_TYPE_OV_BOX, ViewOvBoxClass))
 
 
 typedef struct _ViewOvBox {
@@ -65,7 +66,7 @@ typedef struct _ViewOvBoxClass {
 G_BEGIN_DECLS
 
 
-GtkType
+GType
 ViewOvBox_GetType(void);
 
 GtkWidget *
