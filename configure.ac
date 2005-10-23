@@ -63,6 +63,9 @@ if test "x$GCC" = "xyes"; then
    CFLAGS="$CFLAGS -Wall"
 fi
 
+dnl # Disable deprecated functionality
+AM_CPPFLAGS="-DG_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DATK_DISABLED_DEPRECATED -DPANGO_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED"
+AC_SUBST(AM_CPPFLAGS)
 
 dnl ################################################################
 dnl # Output the Makefiles

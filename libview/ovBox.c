@@ -596,21 +596,22 @@ ViewOvBoxClassInit(gpointer klass) // IN
 GtkType
 ViewOvBox_GetType(void)
 {
-   static GtkType type = 0;
+   static GType type = 0;
 
    if (type == 0) {
-      static const GtkTypeInfo info = {
-         "ViewOvBox",
-         sizeof (ViewOvBox),
+      static const GTypeInfo info = {
          sizeof (ViewOvBoxClass),
-         ViewOvBoxClassInit,
-         ViewOvBoxInit,
-         /* reserved_1 */ NULL,
-         /* reserved_2 */ NULL,
+         NULL, /* BaseInit */
+         NULL, /* BaseFinalize */
+         (GClassInitFunc)ViewOvBoxClassInit,
          NULL,
+         NULL, /* Class Data */
+         sizeof (ViewOvBox),
+         0, /* n_preallocs */
+         (GInstanceInitFunc)ViewOvBoxInit,
       };
 
-      type = gtk_type_unique(GTK_TYPE_BOX, &info);
+      type = g_type_register_static(GTK_TYPE_BOX, "ViewOvBox", &info, 0);
    }
 
    return type;
@@ -638,7 +639,7 @@ ViewOvBox_New(void)
 {
    ViewOvBox *that;
 
-   that = VIEW_OV_BOX(gtk_type_new(VIEW_TYPE_OV_BOX));
+   that = VIEW_OV_BOX(g_object_new(VIEW_TYPE_OV_BOX, NULL));
 
    return GTK_WIDGET(that);
 }

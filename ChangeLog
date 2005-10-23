@@ -1,3 +1,10 @@
+Sun 23 Oct 10:11:32 PDT 2005  Philip Langdale <plangdale@vmware.com>
+
+	* configure.ac
+	* libview/drawer.c
+	* libview/ovBox.c:
+	  - Make libview compile with DISABLE_DEPRECATIONS.
+
 Fri Oct 21 18:39:12 PDT 2005  Régis Duchesne <hpreg@vmware.com>
 
 	* libview/fieldEntry.cc:

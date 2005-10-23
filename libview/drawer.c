@@ -109,7 +109,7 @@ ViewDrawerFinalize(GObject *object) // IN
 
    that = VIEW_DRAWER(object);
    if (that->timer.pending) {
-      gtk_timeout_remove(that->timer.id);
+      g_source_remove(that->timer.id);
       that->timer.pending = FALSE;
    }
 
@@ -161,21 +161,22 @@ ViewDrawerClassInit(gpointer klass) // IN
 GtkType
 ViewDrawer_GetType(void)
 {
-   static GtkType type = 0;
+   static GType type = 0;
 
    if (type == 0) {
-      static const GtkTypeInfo info = {
-         "ViewDrawer",
-         sizeof (ViewDrawer),
+      static const GTypeInfo info = {
          sizeof (ViewDrawerClass),
-         ViewDrawerClassInit,
-         ViewDrawerInit,
-         /* reserved_1 */ NULL,
-         /* reserved_2 */ NULL,
+         NULL, /* BaseInit */
+         NULL, /* BaseFinalize */
+         (GClassInitFunc)ViewDrawerClassInit,
          NULL,
+         NULL, /* Class Data */
+         sizeof (ViewDrawer),
+         0, /* n_preallocs */
+         (GInstanceInitFunc)ViewDrawerInit,
       };
 
-      type = gtk_type_unique(VIEW_TYPE_OV_BOX, &info);
+      type = g_type_register_static(VIEW_TYPE_OV_BOX, "ViewDrawer", &info, 0);
    }
 
    return type;
@@ -203,7 +204,7 @@ ViewDrawer_New(void)
 {
    ViewDrawer *that;
 
-   that = VIEW_DRAWER(gtk_type_new(VIEW_TYPE_DRAWER));
+   that = VIEW_DRAWER(g_object_new(VIEW_TYPE_DRAWER, NULL));
 
    return GTK_WIDGET(that);
 }
@@ -279,8 +280,8 @@ ViewDrawer_SetSpeed(ViewDrawer *that,      // IN
 {
    that->period = period;
    if (that->timer.pending) {
-      gtk_timeout_remove(that->timer.id);
-      that->timer.id = gtk_timeout_add(that->period, ViewDrawerOnTimer, that);
+      g_source_remove(that->timer.id);
+      that->timer.id = g_timeout_add(that->period, ViewDrawerOnTimer, that);
    }
    that->step = step;
 }
@@ -313,7 +314,7 @@ ViewDrawer_SetGoal(ViewDrawer *that, // IN
 
    that->goal = goal;
    if (that->timer.pending == FALSE) {
-      that->timer.id = gtk_timeout_add(that->period, ViewDrawerOnTimer, that);
+      that->timer.id = g_timeout_add(that->period, ViewDrawerOnTimer, that);
       that->timer.pending = TRUE;
    }
 }
