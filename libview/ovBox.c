@@ -573,7 +573,7 @@ ViewOvBoxClassInit(gpointer klass) // IN
    widgetClass->size_allocate = ViewOvBoxSizeAllocate;
    widgetClass->style_set = ViewOvBoxStyleSet;
 
-   parentClass = gtk_type_class(GTK_TYPE_BOX);
+   parentClass = g_type_class_peek_parent(klass);
 }
 
 

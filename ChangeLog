@@ -1,3 +1,9 @@
+Sun 23 Oct 10:51:15 PDT 2005  Philip Langdale <plangdale@vmware.com>
+
+	* libview/drawer.c
+	* libview/ovBox.c:
+          - gtk_type_class is not deprecated per-se but has a replacement.
+
 Sun 23 Oct 10:40:57 PDT 2005  Philip Langdale <plangdale@vmware.com>
 
 	* libview/drawer.h

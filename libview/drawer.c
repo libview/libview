@@ -138,7 +138,7 @@ ViewDrawerClassInit(gpointer klass) // IN
 {
    G_OBJECT_CLASS(klass)->finalize = ViewDrawerFinalize;
 
-   parentClass = gtk_type_class(VIEW_TYPE_OV_BOX);
+   parentClass = g_type_class_peek_parent(klass);
 }
 
 
