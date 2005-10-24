@@ -29,6 +29,7 @@
 
 
 #include <gtkmm/toggletoolbutton.h>
+#include <gtk/gtkmenu.h>
 
 #include <libview/menuToggleAction.hh>
 
@@ -172,7 +173,8 @@ MenuToggleAction::connect_proxy_vfunc(Gtk::Widget *widget) // IN
    if (toolButton) {
       widgetMap[widget] =
          toolButton->get_child()->signal_button_press_event().connect(
-            sigc::mem_fun(this, &MenuToggleAction::OnButtonPressed), false);
+            sigc::bind(sigc::mem_fun(this, &MenuToggleAction::OnButtonPressed), widget),
+            false);
    }
 
    /*
@@ -238,10 +240,35 @@ MenuToggleAction::disconnect_proxy_vfunc(Gtk::Widget *widget) // IN
  */
 
 bool
-MenuToggleAction::OnButtonPressed(GdkEventButton *event) // IN
+MenuToggleAction::OnButtonPressed(GdkEventButton *event, // IN
+                                  Gtk::Widget *widget)   // IN
 {
    if (event->button == 3) {
       if (mMenu) {
+         /*
+          * It is generally desirable to associate a popupmenu with the
+          * widget that invoked it, so we attempt to do so. However,
+          * the GtkMenu model is illsuited to our case where we have
+          * one menu and many widgets so we must try and make do. We assume
+          * that if the menu already has an attach widget, we should let
+          * things be. That attach_widget will be some proxy, and that's
+          * as good as any other.
+          */
+         if (!mMenu->get_attach_widget()) {
+            gtk_menu_attach_to_widget(mMenu->gobj(),
+                                      widget->gobj(),
+                                      MenuToggleAction::OnMenuDetached);
+            /*
+             * The standard pattern is to leave the widget attached and let
+             * the menu disconnect itself in its finalize method. However, in
+             * our case, the menu has a longer lifetime than the widget and
+             * GtkMenu does not track the widget, so there are problems when
+             * the menu finally goes away. To avoid this, we explicitly
+             * disconnect, once the menu is dismissed.
+             */
+            mMenu->signal_unmap().connect(sigc::mem_fun(mMenu, &Gtk::Menu::detach));
+
+         }
          mMenu->popup(event->button, event->time);
       }      
       return true;

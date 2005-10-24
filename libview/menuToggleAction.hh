@@ -61,7 +61,10 @@ protected:
    void disconnect_proxy_vfunc(Gtk::Widget *widget);
 
 private:
-   bool OnButtonPressed(GdkEventButton *event);
+   bool OnButtonPressed(GdkEventButton *event, Gtk::Widget *widget);
+
+   // Gtk insists on a detach callback but we don't need one.
+   static void OnMenuDetached(GtkWidget *widget, GtkMenu *menu) {}
 
    // The action takes ownership of the menu.
    Gtk::Menu *mMenu;
