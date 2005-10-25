@@ -98,7 +98,7 @@ static GtkBoxClass *parentClass;
 
 static void
 ViewOvBoxInit(GTypeInstance *instance, // IN
-            gpointer klass)          // Unused
+              gpointer klass)          // Unused
 {
    ViewOvBox *that;
 
@@ -206,11 +206,11 @@ ViewOvBoxGetActualMin(ViewOvBox *that) // IN
  */
 
 static void
-ViewOvBoxGetUnderGeometry(ViewOvBox *that,        // IN
-                        int *x,               // OUT
-                        int *y,               // OUT
-                        unsigned int *width,  // OUT
-                        unsigned int *height) // OUT
+ViewOvBoxGetUnderGeometry(ViewOvBox *that, // IN
+                          int *x,          // OUT
+                          int *y,          // OUT
+                          int *width,      // OUT
+                          int *height)     // OUT
 {
    unsigned int min;
    GtkAllocation *allocation;
@@ -243,11 +243,11 @@ ViewOvBoxGetUnderGeometry(ViewOvBox *that,        // IN
  */
 
 static void
-ViewOvBoxGetOverGeometry(ViewOvBox *that,        // IN
-                       int *x,               // OUT
-                       int *y,               // OUT
-                       unsigned int *width,  // OUT
-                       unsigned int *height) // OUT
+ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
+                         int *x,          // OUT
+                         int *y,          // OUT
+                         int *width,      // OUT
+                         int *height)     // OUT
 {
    gboolean expand;
    gboolean fill;
@@ -367,7 +367,7 @@ ViewOvBoxRealize(GtkWidget *widget) // IN
     */
 
    ViewOvBoxGetUnderGeometry(that, &attributes.x, &attributes.y,
-                           &attributes.width, &attributes.height);
+                             &attributes.width, &attributes.height);
    that->underWin = gdk_window_new(widget->window, &attributes, mask);
    gdk_window_set_user_data(that->underWin, that);
    if (that->under) {
@@ -376,7 +376,7 @@ ViewOvBoxRealize(GtkWidget *widget) // IN
    gdk_window_show(that->underWin);
 
    ViewOvBoxGetOverGeometry(that, &attributes.x, &attributes.y,
-                          &attributes.width, &attributes.height);
+                            &attributes.width, &attributes.height);
    that->overWin = gdk_window_new(widget->window, &attributes, mask);
    gdk_window_set_user_data(that->overWin, that);
    if (that->over) {
@@ -441,7 +441,7 @@ ViewOvBoxUnrealize(GtkWidget *widget) // IN
 
 static void
 ViewOvBoxSizeRequest(GtkWidget *widget,           // IN
-		   GtkRequisition *requisition) // OUT
+                     GtkRequisition *requisition) // OUT
 {
    ViewOvBox *that;
    GtkRequisition underR;
@@ -476,7 +476,7 @@ ViewOvBoxSizeRequest(GtkWidget *widget,           // IN
 
 static void
 ViewOvBoxSizeAllocate(GtkWidget *widget,         // IN
-	            GtkAllocation *allocation) // IN
+                      GtkAllocation *allocation) // IN
 {
    ViewOvBox *that;
    GtkAllocation under;
@@ -487,7 +487,7 @@ ViewOvBoxSizeAllocate(GtkWidget *widget,         // IN
    that = VIEW_OV_BOX(widget);
 
    ViewOvBoxGetUnderGeometry(that, &under.x, &under.y, &under.width,
-                           &under.height);
+                             &under.height);
    ViewOvBoxGetOverGeometry(that, &over.x, &over.y, &over.width, &over.height);
 
    if (GTK_WIDGET_REALIZED(widget)) {
@@ -526,7 +526,7 @@ ViewOvBoxSizeAllocate(GtkWidget *widget,         // IN
 
 static void
 ViewOvBoxStyleSet(GtkWidget *widget,       // IN
-                GtkStyle *previousStyle) // IN: Unused
+                  GtkStyle *previousStyle) // IN: Unused
 {
    ViewOvBox *that;
 
@@ -662,10 +662,10 @@ ViewOvBox_New(void)
  */
 
 static void
-ViewOvBoxSetChild(ViewOvBox *that,       // IN
-                GtkWidget **child,   // IN
-                GdkWindow *childWin, // IN
-                GtkWidget *widget)   // IN
+ViewOvBoxSetChild(ViewOvBox *that,     // IN
+                  GtkWidget **child,   // IN
+                  GdkWindow *childWin, // IN
+                  GtkWidget *widget)   // IN
 {
    if (*child) {
       gtk_container_remove(GTK_CONTAINER(that), *child);
@@ -695,8 +695,8 @@ ViewOvBoxSetChild(ViewOvBox *that,       // IN
  */
 
 void
-ViewOvBox_SetUnder(ViewOvBox *that,     // IN
-                 GtkWidget *widget) // IN
+ViewOvBox_SetUnder(ViewOvBox *that,   // IN
+                   GtkWidget *widget) // IN
 {
    ViewOvBoxSetChild(that, &that->under, that->underWin, widget);
 }
@@ -719,8 +719,8 @@ ViewOvBox_SetUnder(ViewOvBox *that,     // IN
  */
 
 void
-ViewOvBox_SetOver(ViewOvBox *that,     // IN
-                GtkWidget *widget) // IN
+ViewOvBox_SetOver(ViewOvBox *that,   // IN
+                  GtkWidget *widget) // IN
 {
    ViewOvBoxSetChild(that, &that->over, that->overWin, widget);
 }
@@ -747,8 +747,8 @@ ViewOvBox_SetOver(ViewOvBox *that,     // IN
  */
 
 void
-ViewOvBox_SetMin(ViewOvBox *that,    // IN
-               unsigned int min) // IN
+ViewOvBox_SetMin(ViewOvBox *that,  // IN
+                 unsigned int min) // IN
 {
    that->min = min;
    gtk_widget_queue_resize(GTK_WIDGET(that));
@@ -773,8 +773,8 @@ ViewOvBox_SetMin(ViewOvBox *that,    // IN
  */
 
 void
-ViewOvBox_SetFraction(ViewOvBox *that,   // IN
-                    double fraction) // IN
+ViewOvBox_SetFraction(ViewOvBox *that, // IN
+                      double fraction) // IN
 {
    if (fraction < 0 || fraction > 1) {
       return;
@@ -784,8 +784,8 @@ ViewOvBox_SetFraction(ViewOvBox *that,   // IN
    if (GTK_WIDGET_REALIZED(that)) {
       int x;
       int y;
-      unsigned int width;
-      unsigned int height;
+      int width;
+      int height;
 
       ViewOvBoxGetOverGeometry(that, &x, &y, &width, &height);
       gdk_window_move(that->overWin, x, y);
@@ -814,130 +814,3 @@ ViewOvBox_GetFraction(ViewOvBox *that)
 {
    return that->fraction;
 }
-
-
-#if 0
-/*
- * Unit testing of the ViewOvBox code:
- * o All methods are called.
- * o The 'under' and 'over' children start large then shrink.
- *
- * When running this test, check that:
- * o Both the 'under' and 'over' widgets are drawn correctly.
- */
-
-
-#include <gtk/gtk.h>
-#include <unistd.h>
-
-
-#include <libview/ovBox.h>
-
-
-GtkWidget *ov;
-GtkWidget *label1;
-GtkWidget *label2;
-
-
-static gint
-timer(gpointer data)
-{
-   static unsigned int phase = 0;
-
-   g_warning("timer phase %u", phase);
-
-   switch (phase - 3) {
-   case 0:
-      g_warning("Setting label1");
-      gtk_label_set_text(GTK_LABEL(label1), "Try\nme");
-      break;
-
-   case 1:
-      ViewOvBox_SetFraction(VIEW_OV_BOX(ov), 0);
-      break;
-
-   case 2:
-      ViewOvBox_SetFraction(VIEW_OV_BOX(ov), 0.1);
-      break;
-
-   case 3:
-      ViewOvBox_SetFraction(VIEW_OV_BOX(ov), 0.2);
-      break;
-
-   case 4:
-      ViewOvBox_SetFraction(VIEW_OV_BOX(ov), 0.3);
-      break;
-
-   case 5:
-      ViewOvBox_SetFraction(VIEW_OV_BOX(ov), 0.4);
-      break;
-
-   case 6:
-      ViewOvBox_SetFraction(VIEW_OV_BOX(ov), 0.5);
-      break;
-
-   case 7:
-      ViewOvBox_SetFraction(VIEW_OV_BOX(ov), 0.6);
-      break;
-
-   case 8:
-      g_warning("Setting label2");
-      gtk_label_set_text(GTK_LABEL(label2), "ABCDE");
-      break;
-
-   case 9:
-      ViewOvBox_SetFraction(VIEW_OV_BOX(ov), 0.7);
-      break;
-
-   case 10:
-      ViewOvBox_SetFraction(VIEW_OV_BOX(ov), 0.8);
-      break;
-
-   case 11:
-      ViewOvBox_SetFraction(VIEW_OV_BOX(ov), 0.9);
-      break;
-
-   case 12:
-      ViewOvBox_SetFraction(VIEW_OV_BOX(ov), 1);
-      break;
-
-   default:
-      break;
-   }
-
-   phase++;
-   return 1;
-}
-
-
-int
-main(int argc,
-     char **argv)
-{
-  GtkWidget *window;
-
-  gtk_init(&argc, &argv);
-    
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_widget_show(window);
-
-  ov = ViewOvBox_New();
-  gtk_widget_show(ov);
-  gtk_container_add(GTK_CONTAINER(window), ov);
-
-  label2 = gtk_label_new("ABCDE\nFGHIJ");
-  gtk_widget_show(label2);
-  ViewOvBox_SetOver(VIEW_OV_BOX(ov), label2);
-
-  label1 = gtk_label_new("Try\nto\noverlap\nme");
-  gtk_widget_show(label1);
-  ViewOvBox_SetUnder(VIEW_OV_BOX(ov), label1);
-
-  ViewOvBox_SetMin(VIEW_OV_BOX(ov), 10);
-  gtk_timeout_add(2000, timer, NULL);
-
-  gtk_main();
-    
-  return 0;
-}
-#endif

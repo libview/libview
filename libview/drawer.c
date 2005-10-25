@@ -75,7 +75,7 @@ struct _ViewDrawerClass {
 
 static void
 ViewDrawerInit(GTypeInstance *instance, // IN
-             gpointer klass)          // Unused
+               gpointer klass)          // Unused
 {
    ViewDrawer *that;
 
@@ -274,9 +274,9 @@ ViewDrawerOnTimer(gpointer data) // IN
  */
 
 void
-ViewDrawer_SetSpeed(ViewDrawer *that,      // IN
-                  unsigned int period, // IN
-		  double step)         // IN
+ViewDrawer_SetSpeed(ViewDrawer *that,    // IN
+                    unsigned int period, // IN
+                    double step)         // IN
 {
    that->period = period;
    if (that->timer.pending) {
@@ -306,7 +306,7 @@ ViewDrawer_SetSpeed(ViewDrawer *that,      // IN
 
 void
 ViewDrawer_SetGoal(ViewDrawer *that, // IN
-                 double goal)    // IN
+                   double goal)      // IN
 {
    if (goal < 0 || goal > 1) {
       return;

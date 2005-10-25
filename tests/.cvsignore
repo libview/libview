@@ -1,6 +1,7 @@
 Makefile
 Makefile.in
 test-dead-entry
+test-ovBox
 test-drawer
 test-header-bgbox
 test-ip-entry

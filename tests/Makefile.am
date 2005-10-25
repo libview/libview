@@ -1,5 +1,6 @@
 noinst_PROGRAMS = \
 	test-dead-entry \
+	test-ovBox \
 	test-drawer \
 	test-header-bgbox \
 	test-ip-entry \
@@ -13,6 +14,10 @@ common_ldflags = \
 
 test_dead_entry_SOURCES = test-dead-entry.cc
 test_dead_entry_LDADD   = $(common_ldflags)
+
+
+test_ovBox_SOURCES = test-ovBox.cc
+test_ovBox_LDADD   = $(common_ldflags)
 
 
 test_drawer_SOURCES = test-drawer.cc

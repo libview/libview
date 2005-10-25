@@ -1,10 +1,21 @@
+Tue Oct 25 00:47:19 PDT 2005  Régis Duchesne <hpreg@vmware.com>
+
+	* libview/drawer.c:
+	* libview/ovBox.c:
+	* tests/.cvsignore:
+	* tests/Makefile.am:
+	A tests/test-ovBox.cc
+	  - Fixed indentation in ovBox/drawer.
+	  - Fixed signedness issue reported by gcc 4.0.2 in ovBox.
+	  - Extracted ovBox unit test code into its own file.
+
 Mon 24 Oct 10:24:32 PDT 2005  Philip Langdale <plangdale@vmware.com>
 
 	* libview/menuToggleAction.cc
 	* libview/menuToggleAction.hh:
-	- Set the attach_widget for the popup menu before it is shown
-	  and clear it afterwards. The pending autoDrawer widget
-	  requires popup menus to correctly set their attach_widget.
+	  - Set the attach_widget for the popup menu before it is shown
+	    and clear it afterwards. The pending autoDrawer widget
+	    requires popup menus to correctly set their attach_widget.
 
 Sun 23 Oct 10:51:15 PDT 2005  Philip Langdale <plangdale@vmware.com>
 
