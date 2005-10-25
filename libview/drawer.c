@@ -30,8 +30,20 @@
 
 
 #include <libview/drawer.h>
-#include <libview/ovBox.h>
 
+
+struct _ViewDrawerPrivate
+{
+   unsigned int period;
+   double step;
+   double goal;
+   struct {
+      gboolean pending;
+      guint id;
+   } timer;
+};
+
+#define VIEW_DRAWER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), VIEW_TYPE_DRAWER, ViewDrawerPrivate))
 
 /* The unaltered parent class. */
 static ViewOvBoxClass *parentClass;
@@ -59,10 +71,12 @@ ViewDrawerInit(GTypeInstance *instance, // IN
 {
    ViewDrawer *that;
 
-   that = (ViewDrawer *)instance;
-   that->period = 10;
-   that->step = 0.2;
-   that->timer.pending = FALSE;
+   that = VIEW_DRAWER(instance);
+   that->priv = VIEW_DRAWER_GET_PRIVATE(that);
+
+   that->priv->period = 10;
+   that->priv->step = 0.2;
+   that->priv->timer.pending = FALSE;
 }
 
 
@@ -86,11 +100,14 @@ static void
 ViewDrawerFinalize(GObject *object) // IN
 {
    ViewDrawer *that;
+   ViewDrawerPrivate *priv;
 
    that = VIEW_DRAWER(object);
-   if (that->timer.pending) {
-      g_source_remove(that->timer.id);
-      that->timer.pending = FALSE;
+   priv = that->priv;
+
+   if (priv->timer.pending) {
+      g_source_remove(priv->timer.id);
+      priv->timer.pending = FALSE;
    }
 
    G_OBJECT_CLASS(parentClass)->finalize(object);
@@ -116,9 +133,13 @@ ViewDrawerFinalize(GObject *object) // IN
 static void
 ViewDrawerClassInit(gpointer klass) // IN
 {
-   G_OBJECT_CLASS(klass)->finalize = ViewDrawerFinalize;
+   GObjectClass *objectClass = G_OBJECT_CLASS(klass);
 
    parentClass = g_type_class_peek_parent(klass);
+
+   objectClass->finalize = ViewDrawerFinalize;
+
+   g_type_class_add_private(objectClass, sizeof(ViewDrawerPrivate));
 }
 
 
@@ -213,9 +234,11 @@ static gint
 ViewDrawerOnTimer(gpointer data) // IN
 {
    ViewDrawer *that;
+   ViewDrawerPrivate *priv;
    double fraction;
 
    that = VIEW_DRAWER(data);
+   priv = that->priv;
 
    fraction = ViewOvBox_GetFraction(VIEW_OV_BOX(that));
    /*
@@ -224,14 +247,14 @@ ViewDrawerOnTimer(gpointer data) // IN
     * http://www2.hursley.ibm.com/decimal/decifaq1.html and http://boost.org/libs/test/doc/components/test_tools/floating_point_comparison.html).
     * But in this particular case it is legitimate. --hpreg
     */
-   if (that->goal == fraction) {
-      return that->timer.pending = FALSE;
+   if (priv->goal == fraction) {
+      return priv->timer.pending = FALSE;
    }
 
    ViewOvBox_SetFraction(VIEW_OV_BOX(that),
-                       that->goal > fraction
-                          ? MIN(fraction + that->step, that->goal)
-                          : MAX(fraction - that->step, that->goal));
+                         priv->goal > fraction
+                            ? MIN(fraction + priv->step, priv->goal)
+                            : MAX(fraction - priv->step, priv->goal));
    return TRUE;
 }
 
@@ -258,12 +281,18 @@ ViewDrawer_SetSpeed(ViewDrawer *that,    // IN
                     unsigned int period, // IN
                     double step)         // IN
 {
-   that->period = period;
-   if (that->timer.pending) {
-      g_source_remove(that->timer.id);
-      that->timer.id = g_timeout_add(that->period, ViewDrawerOnTimer, that);
+   ViewDrawerPrivate *priv;
+
+   g_return_if_fail(that != NULL);
+
+   priv = that->priv;
+
+   priv->period = period;
+   if (priv->timer.pending) {
+      g_source_remove(priv->timer.id);
+      priv->timer.id = g_timeout_add(priv->period, ViewDrawerOnTimer, that);
    }
-   that->step = step;
+   priv->step = step;
 }
 
 
@@ -288,13 +317,16 @@ void
 ViewDrawer_SetGoal(ViewDrawer *that, // IN
                    double goal)      // IN
 {
-   if (goal < 0 || goal > 1) {
-      return;
-   }
+   ViewDrawerPrivate *priv;
 
-   that->goal = goal;
-   if (that->timer.pending == FALSE) {
-      that->timer.id = g_timeout_add(that->period, ViewDrawerOnTimer, that);
-      that->timer.pending = TRUE;
+   g_return_if_fail(that != NULL);
+   g_return_if_fail(goal >= 0 && goal <= 1);
+
+   priv = that->priv;
+
+   priv->goal = goal;
+   if (priv->timer.pending == FALSE) {
+      priv->timer.id = g_timeout_add(priv->period, ViewDrawerOnTimer, that);
+      priv->timer.pending = TRUE;
    }
 }

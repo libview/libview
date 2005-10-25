@@ -1,3 +1,15 @@
+Tue 25 Oct 15:40:07 PDT 2005  Philip Langdale <plangdale@vmware.com>
+
+	* libview/autoDrawer.c
+	* libview/autoDrawer.h
+	* libview/drawer.c
+	* libview/drawer.h
+	* libview/ovBox.c
+	* libview/ovBox.h:
+	- Update all C objects to use GObject private structs for
+	  private data and add parameter sanity checking to all
+	  public calls.
+
 Tue 25 Oct 11:16:43 PDT 2005  Philip Langdale <plangdale@vmware.com>
 
 	* libview/drawer.c

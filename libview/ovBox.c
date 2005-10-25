@@ -76,6 +76,19 @@
 #include <libview/ovBox.h>
 
 
+struct _ViewOvBoxPrivate
+{
+   GdkWindow *underWin;
+   GtkWidget *under;
+   GdkWindow *overWin;
+   GtkWidget *over;
+   GtkRequisition overR;
+   unsigned int min;
+   double fraction;
+};
+
+#define VIEW_OV_BOX_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), VIEW_TYPE_OV_BOX, ViewOvBoxPrivate))
+
 /* The unaltered parent class. */
 static GtkBoxClass *parentClass;
 
@@ -101,19 +114,22 @@ ViewOvBoxInit(GTypeInstance *instance, // IN
               gpointer klass)          // Unused
 {
    ViewOvBox *that;
+   ViewOvBoxPrivate *priv;
 
-   that = (ViewOvBox *)instance;
+   that = VIEW_OV_BOX(instance);
+   that->priv = VIEW_OV_BOX_GET_PRIVATE(that);
+   priv = that->priv;
 
    GTK_WIDGET_UNSET_FLAGS(that, GTK_NO_WINDOW);
 
-   that->underWin = NULL;
-   that->under = NULL;
-   that->overWin = NULL;
-   that->over = NULL;
-   that->overR.height = -1;
-   that->overR.width = -1;
-   that->min = 0;
-   that->fraction = 0;
+   priv->underWin = NULL;
+   priv->under = NULL;
+   priv->overWin = NULL;
+   priv->over = NULL;
+   priv->overR.height = -1;
+   priv->overR.width = -1;
+   priv->min = 0;
+   priv->fraction = 0;
 }
 
 
@@ -185,7 +201,7 @@ ViewOvBoxUnmap(GtkWidget *widget) // IN
 static inline unsigned int
 ViewOvBoxGetActualMin(ViewOvBox *that) // IN
 {
-   return MIN(that->min, that->overR.height);
+   return MIN(that->priv->min, that->priv->overR.height);
 }
 
 
@@ -215,7 +231,6 @@ ViewOvBoxGetUnderGeometry(ViewOvBox *that, // IN
    unsigned int min;
    GtkAllocation *allocation;
 
-   g_assert(that);
    min = ViewOvBoxGetActualMin(that);
    allocation = &GTK_WIDGET(that)->allocation;
 
@@ -249,18 +264,19 @@ ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
                          int *width,      // OUT
                          int *height)     // OUT
 {
+   ViewOvBoxPrivate *priv;
    gboolean expand;
    gboolean fill;
    unsigned int boxWidth;
 
-   g_assert(that);
+   priv = that->priv;
 
-   if (that->over) {
+   if (priv->over) {
       /*
        * When a child's expand or fill property changes, GtkBox queues
        * a resize for the child.
        */
-      gtk_container_child_get(GTK_CONTAINER(that), that->over,
+      gtk_container_child_get(GTK_CONTAINER(that), priv->over,
                               "expand", &expand,
                               "fill", &fill,
                               NULL);
@@ -272,19 +288,19 @@ ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
 
    boxWidth = GTK_WIDGET(that)->allocation.width;
    if (!expand) {
-      *width = MIN(that->overR.width, boxWidth);
+      *width = MIN(priv->overR.width, boxWidth);
       *x = 0;
    } else if (!fill) {
-      *width = MIN(that->overR.width, boxWidth);
+      *width = MIN(priv->overR.width, boxWidth);
       *x = (boxWidth - *width) / 2;
    } else {
       *width = boxWidth;
       *x = 0;
    }
 
-   *y =   (that->overR.height - ViewOvBoxGetActualMin(that))
-        * (that->fraction - 1);
-   *height = that->overR.height;
+   *y =   (priv->overR.height - ViewOvBoxGetActualMin(that))
+        * (priv->fraction - 1);
+   *height = priv->overR.height;
 }
 
 
@@ -311,8 +327,8 @@ ViewOvBoxSetBackground(ViewOvBox *that) // IN
 
    widget = GTK_WIDGET(that);
    gtk_style_set_background(widget->style, widget->window, GTK_STATE_NORMAL);
-   gtk_style_set_background(widget->style, that->underWin, GTK_STATE_NORMAL);
-   gtk_style_set_background(widget->style, that->overWin, GTK_STATE_NORMAL);
+   gtk_style_set_background(widget->style, that->priv->underWin, GTK_STATE_NORMAL);
+   gtk_style_set_background(widget->style, that->priv->overWin, GTK_STATE_NORMAL);
 }
 
 
@@ -336,6 +352,7 @@ static void
 ViewOvBoxRealize(GtkWidget *widget) // IN
 {
    ViewOvBox *that;
+   ViewOvBoxPrivate *priv;
    GdkWindowAttr attributes;
    gint mask;
    GtkAllocation *allocation;
@@ -343,6 +360,7 @@ ViewOvBoxRealize(GtkWidget *widget) // IN
    GTK_WIDGET_SET_FLAGS(widget, GTK_REALIZED);
 
    that = VIEW_OV_BOX(widget);
+   priv = that->priv;
 
    attributes.window_type = GDK_WINDOW_CHILD;
    attributes.wclass = GDK_INPUT_OUTPUT;
@@ -368,21 +386,21 @@ ViewOvBoxRealize(GtkWidget *widget) // IN
 
    ViewOvBoxGetUnderGeometry(that, &attributes.x, &attributes.y,
                              &attributes.width, &attributes.height);
-   that->underWin = gdk_window_new(widget->window, &attributes, mask);
-   gdk_window_set_user_data(that->underWin, that);
-   if (that->under) {
-      gtk_widget_set_parent_window(that->under, that->underWin);
+   priv->underWin = gdk_window_new(widget->window, &attributes, mask);
+   gdk_window_set_user_data(priv->underWin, that);
+   if (priv->under) {
+      gtk_widget_set_parent_window(priv->under, priv->underWin);
    }
-   gdk_window_show(that->underWin);
+   gdk_window_show(priv->underWin);
 
    ViewOvBoxGetOverGeometry(that, &attributes.x, &attributes.y,
                             &attributes.width, &attributes.height);
-   that->overWin = gdk_window_new(widget->window, &attributes, mask);
-   gdk_window_set_user_data(that->overWin, that);
-   if (that->over) {
-      gtk_widget_set_parent_window(that->over, that->overWin);
+   priv->overWin = gdk_window_new(widget->window, &attributes, mask);
+   gdk_window_set_user_data(priv->overWin, that);
+   if (priv->over) {
+      gtk_widget_set_parent_window(priv->over, priv->overWin);
    }
-   gdk_window_show(that->overWin);
+   gdk_window_show(priv->overWin);
 
    ViewOvBoxSetBackground(that);
 }
@@ -408,16 +426,18 @@ static void
 ViewOvBoxUnrealize(GtkWidget *widget) // IN
 {
    ViewOvBox *that;
+   ViewOvBoxPrivate *priv;
 
    that = VIEW_OV_BOX(widget);
+   priv = that->priv;
 
-   gdk_window_set_user_data(that->underWin, NULL);
-   gdk_window_destroy(that->underWin);
-   that->underWin = NULL;
+   gdk_window_set_user_data(priv->underWin, NULL);
+   gdk_window_destroy(priv->underWin);
+   priv->underWin = NULL;
 
-   gdk_window_set_user_data(that->overWin, NULL);
-   gdk_window_destroy(that->overWin);
-   that->overWin = NULL;
+   gdk_window_set_user_data(priv->overWin, NULL);
+   gdk_window_destroy(priv->overWin);
+   priv->overWin = NULL;
 
    GTK_WIDGET_CLASS(parentClass)->unrealize(widget);
 }
@@ -444,17 +464,19 @@ ViewOvBoxSizeRequest(GtkWidget *widget,           // IN
                      GtkRequisition *requisition) // OUT
 {
    ViewOvBox *that;
+   ViewOvBoxPrivate *priv;
    GtkRequisition underR;
    unsigned int min;
 
    that = VIEW_OV_BOX(widget);
+   priv = that->priv;
 
-   gtk_widget_size_request(that->under, &underR);
-   gtk_widget_size_request(that->over, &that->overR);
+   gtk_widget_size_request(priv->under, &underR);
+   gtk_widget_size_request(priv->over, &priv->overR);
 
-   requisition->width = MAX(underR.width, that->overR.width);
+   requisition->width = MAX(underR.width, priv->overR.width);
    min = ViewOvBoxGetActualMin(that);
-   requisition->height = MAX(underR.height + min, that->overR.height);
+   requisition->height = MAX(underR.height + min, priv->overR.height);
 }
 
 
@@ -479,12 +501,14 @@ ViewOvBoxSizeAllocate(GtkWidget *widget,         // IN
                       GtkAllocation *allocation) // IN
 {
    ViewOvBox *that;
+   ViewOvBoxPrivate *priv;
    GtkAllocation under;
    GtkAllocation over;
 
    widget->allocation = *allocation;
 
    that = VIEW_OV_BOX(widget);
+   priv = that->priv;
 
    ViewOvBoxGetUnderGeometry(that, &under.x, &under.y, &under.width,
                              &under.height);
@@ -493,18 +517,18 @@ ViewOvBoxSizeAllocate(GtkWidget *widget,         // IN
    if (GTK_WIDGET_REALIZED(widget)) {
       gdk_window_move_resize(widget->window, allocation->x, allocation->y,
                              allocation->width, allocation->height);
-      gdk_window_move_resize(that->underWin, under.x, under.y, under.width,
+      gdk_window_move_resize(priv->underWin, under.x, under.y, under.width,
                              under.height);
-      gdk_window_move_resize(that->overWin, over.x, over.y, over.width,
+      gdk_window_move_resize(priv->overWin, over.x, over.y, over.width,
                              over.height);
    }
 
    under.x = 0;
    under.y = 0;
-   gtk_widget_size_allocate(that->under, &under);
+   gtk_widget_size_allocate(priv->under, &under);
    over.x = 0;
    over.y = 0;
-   gtk_widget_size_allocate(that->over, &over);
+   gtk_widget_size_allocate(priv->over, &over);
 }
 
 
@@ -601,7 +625,7 @@ static void
 ViewOvBoxSetOver(ViewOvBox *that,   // IN
                  GtkWidget *widget) // IN
 {
-   ViewOvBoxSetChild(that, &that->over, that->overWin, widget);
+   ViewOvBoxSetChild(that, &that->priv->over, that->priv->overWin, widget);
 }
 
 
@@ -624,9 +648,11 @@ ViewOvBoxSetOver(ViewOvBox *that,   // IN
 static void
 ViewOvBoxClassInit(ViewOvBoxClass *klass) // IN
 {
+   GObjectClass *objectClass;
    GtkWidgetClass *widgetClass;
 
-   widgetClass = (GtkWidgetClass *)klass;
+   objectClass = G_OBJECT_CLASS(klass);
+   widgetClass = GTK_WIDGET_CLASS(klass);
 
    widgetClass->map = ViewOvBoxMap;
    widgetClass->unmap = ViewOvBoxUnmap;
@@ -639,6 +665,8 @@ ViewOvBoxClassInit(ViewOvBoxClass *klass) // IN
    klass->set_over = ViewOvBoxSetOver;
 
    parentClass = g_type_class_peek_parent(klass);
+
+   g_type_class_add_private(objectClass, sizeof(ViewOvBoxPrivate));
 }
 
 
@@ -730,7 +758,9 @@ void
 ViewOvBox_SetUnder(ViewOvBox *that,   // IN
                    GtkWidget *widget) // IN
 {
-   ViewOvBoxSetChild(that, &that->under, that->underWin, widget);
+   g_return_if_fail(that != NULL);
+
+   ViewOvBoxSetChild(that, &that->priv->under, that->priv->underWin, widget);
 }
 
 
@@ -754,6 +784,8 @@ void
 ViewOvBox_SetOver(ViewOvBox *that,   // IN
                   GtkWidget *widget) // IN
 {
+   g_return_if_fail(that != NULL);
+
    VIEW_OV_BOX_GET_CLASS(that)->set_over(that, widget);
 }
 
@@ -782,7 +814,9 @@ void
 ViewOvBox_SetMin(ViewOvBox *that,  // IN
                  unsigned int min) // IN
 {
-   that->min = min;
+   g_return_if_fail(that != NULL);
+
+   that->priv->min = min;
    gtk_widget_queue_resize(GTK_WIDGET(that));
 }
 
@@ -808,11 +842,10 @@ void
 ViewOvBox_SetFraction(ViewOvBox *that, // IN
                       double fraction) // IN
 {
-   if (fraction < 0 || fraction > 1) {
-      return;
-   }
+   g_return_if_fail(that != NULL);
+   g_return_if_fail(fraction >=0 && fraction <= 1);
 
-   that->fraction = fraction;
+   that->priv->fraction = fraction;
    if (GTK_WIDGET_REALIZED(that)) {
       int x;
       int y;
@@ -820,7 +853,7 @@ ViewOvBox_SetFraction(ViewOvBox *that, // IN
       int height;
 
       ViewOvBoxGetOverGeometry(that, &x, &y, &width, &height);
-      gdk_window_move(that->overWin, x, y);
+      gdk_window_move(that->priv->overWin, x, y);
    }
 }
 
@@ -844,5 +877,7 @@ ViewOvBox_SetFraction(ViewOvBox *that, // IN
 double
 ViewOvBox_GetFraction(ViewOvBox *that)
 {
-   return that->fraction;
+   g_return_val_if_fail(that != NULL, 0);
+
+   return that->priv->fraction;
 }

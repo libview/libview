@@ -30,20 +30,11 @@
  */
 
 
-#include <gtk/gtk.h>
 #include <libview/autoDrawer.h>
-#include <libview/drawer.h>
-#include <libview/ovBox.h>
 
 
-/* The unaltered parent class. */
-static ViewDrawerClass *parentClass;
-
-
-struct _ViewAutoDrawer {
-   /* Must come first. */
-   ViewDrawer parent;
-
+struct _ViewAutoDrawerPrivate
+{
    gboolean active;
    gboolean pinned;
    gboolean inputUngrabbed;
@@ -56,11 +47,10 @@ struct _ViewAutoDrawer {
    GtkEventBox *evBox;
 };
 
+#define VIEW_AUTODRAWER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), VIEW_TYPE_AUTODRAWER, ViewAutoDrawerPrivate))
 
-struct _ViewAutoDrawerClass {
-   /* Must come first. */
-   ViewDrawerClass parent;
-};
+/* The unaltered parent class. */
+static ViewDrawerClass *parentClass;
 
 
 /*
@@ -86,7 +76,8 @@ ViewAutoDrawerUpdate(ViewAutoDrawer *that, // IN
    gboolean show;
    double fraction;
 
-   GtkWidget *widget = GTK_WIDGET(that->evBox);
+   ViewAutoDrawerPrivate *priv = that->priv;
+   GtkWidget *widget = GTK_WIDGET(priv->evBox);
    GtkWidget *toplevel = gtk_widget_get_toplevel(GTK_WIDGET(that));
 
    if (!toplevel || !GTK_WIDGET_TOPLEVEL(toplevel)) {
@@ -94,15 +85,15 @@ ViewAutoDrawerUpdate(ViewAutoDrawer *that, // IN
       return;
    }
 
-   if (!that->active) {
+   if (!priv->active) {
       ViewOvBox_SetMin(VIEW_OV_BOX(that), -1);
       ViewOvBox_SetFraction(VIEW_OV_BOX(that), 0);
       return;
    }
 
-   if (that->pinned) {
+   if (priv->pinned) {
       show = TRUE;
-   } else if (that->inputUngrabbed) {
+   } else if (priv->inputUngrabbed) {
       int x, y;
 
       g_assert(gtk_container_get_border_width(GTK_CONTAINER(widget)) == 0);
@@ -131,9 +122,9 @@ ViewAutoDrawerUpdate(ViewAutoDrawer *that, // IN
       show = gtk_widget_is_ancestor(grabbed, widget);
    }
 
-   ViewOvBox_SetMin(VIEW_OV_BOX(that), that->noOverlapPixels);
+   ViewOvBox_SetMin(VIEW_OV_BOX(that), priv->noOverlapPixels);
 
-   fraction = show ? 1 : (double)that->overlapPixels / widget->allocation.height;
+   fraction = show ? 1 : (double)priv->overlapPixels / widget->allocation.height;
 
    if (G_UNLIKELY(immediate)) {
       ViewOvBox_SetFraction(VIEW_OV_BOX(that), fraction);
@@ -162,7 +153,7 @@ ViewAutoDrawerUpdate(ViewAutoDrawer *that, // IN
 static gboolean
 ViewAutoDrawerOnUpdateDelay(ViewAutoDrawer *that) // IN
 {
-   that->delayConnection = 0;
+   that->priv->delayConnection = 0;
    ViewAutoDrawerUpdate(that, FALSE);
 
    return FALSE;
@@ -189,11 +180,13 @@ ViewAutoDrawerOnUpdateDelay(ViewAutoDrawer *that) // IN
 static void
 ViewAutoDrawerScheduleUpdate(ViewAutoDrawer *that) // IN
 {
-   if (that->delayConnection) {
-      g_source_remove(that->delayConnection);
+   ViewAutoDrawerPrivate *priv = that->priv;
+
+   if (priv->delayConnection) {
+      g_source_remove(priv->delayConnection);
    }
 
-   that->delayConnection = g_timeout_add(that->delayValue,
+   priv->delayConnection = g_timeout_add(priv->delayValue,
                                          (GSourceFunc)ViewAutoDrawerOnUpdateDelay,
                                          that);
 }
@@ -247,13 +240,15 @@ ViewAutoDrawerOnGrabNotify(GtkEventBox *evBox,   // IN
                            gboolean ungrabbed,   // IN
                            ViewAutoDrawer *that) // IN
 {
-   that->inputUngrabbed = ungrabbed;
+   ViewAutoDrawerPrivate *priv = that->priv;
+
+   priv->inputUngrabbed = ungrabbed;
    /*
     * We want to update immediately on a grab so the over widget immediately
     * appears along with the grabbing widget, but we delay on ungrab to be
     * friendly.
     */
-   that->inputUngrabbed ? ViewAutoDrawerScheduleUpdate(that) : 
+   priv->inputUngrabbed ? ViewAutoDrawerScheduleUpdate(that) : 
                           ViewAutoDrawerUpdate(that, TRUE);
 }
 
@@ -305,15 +300,16 @@ ViewAutoDrawerSetOver(ViewOvBox *ovBox,  // IN
                       GtkWidget *widget) // IN
 {
    ViewAutoDrawer *that = VIEW_AUTODRAWER(ovBox);
-   GtkWidget *oldChild = gtk_bin_get_child(GTK_BIN(that->evBox));
+   ViewAutoDrawerPrivate *priv = that->priv;
+   GtkWidget *oldChild = gtk_bin_get_child(GTK_BIN(priv->evBox));
 
    if (oldChild) {
       g_object_ref(oldChild);
-      gtk_container_remove(GTK_CONTAINER(that->evBox), oldChild);
+      gtk_container_remove(GTK_CONTAINER(priv->evBox), oldChild);
    }
 
    if (widget) {
-      gtk_container_add(GTK_CONTAINER(that->evBox), widget);
+      gtk_container_add(GTK_CONTAINER(priv->evBox), widget);
    }
 
    if (oldChild) {
@@ -343,26 +339,29 @@ ViewAutoDrawerInit(GTypeInstance *instance, // IN
                    gpointer klass)          // Unused
 {
    ViewAutoDrawer *that;
+   ViewAutoDrawerPrivate *priv;
 
-   that = (ViewAutoDrawer *)instance;
+   that = VIEW_AUTODRAWER(instance);
+   that->priv = VIEW_AUTODRAWER_GET_PRIVATE(that);
+   priv = that->priv;
 
-   that->active = TRUE;
-   that->pinned = FALSE;
-   that->inputUngrabbed = TRUE;
-   that->delayConnection = 0;
-   that->delayValue = 250;
-   that->overlapPixels = 0;
-   that->noOverlapPixels = 1;
+   priv->active = TRUE;
+   priv->pinned = FALSE;
+   priv->inputUngrabbed = TRUE;
+   priv->delayConnection = 0;
+   priv->delayValue = 250;
+   priv->overlapPixels = 0;
+   priv->noOverlapPixels = 1;
 
-   that->evBox = GTK_EVENT_BOX(gtk_event_box_new());
-   gtk_widget_show(GTK_WIDGET(that->evBox));
-   VIEW_OV_BOX_CLASS(parentClass)->set_over(VIEW_OV_BOX(that), GTK_WIDGET(that->evBox));
+   priv->evBox = GTK_EVENT_BOX(gtk_event_box_new());
+   gtk_widget_show(GTK_WIDGET(priv->evBox));
+   VIEW_OV_BOX_CLASS(parentClass)->set_over(VIEW_OV_BOX(that), GTK_WIDGET(priv->evBox));
 
-   g_signal_connect(that->evBox, "enter-notify-event",
+   g_signal_connect(priv->evBox, "enter-notify-event",
                     G_CALLBACK(ViewAutoDrawerOnOverEnterLeave), that);
-   g_signal_connect(that->evBox, "leave-notify-event",
+   g_signal_connect(priv->evBox, "leave-notify-event",
                     G_CALLBACK(ViewAutoDrawerOnOverEnterLeave), that);
-   g_signal_connect(that->evBox, "grab-notify",
+   g_signal_connect(priv->evBox, "grab-notify",
                     G_CALLBACK(ViewAutoDrawerOnGrabNotify), that);
 
    g_signal_connect(that, "hierarchy-changed",
@@ -394,8 +393,8 @@ ViewAutoDrawerFinalize(GObject *object) // IN
    ViewAutoDrawer *that;
 
    that = VIEW_AUTODRAWER(object);
-   if (that->delayConnection) {
-      g_source_remove(that->delayConnection);
+   if (that->priv->delayConnection) {
+      g_source_remove(that->priv->delayConnection);
    }
 
    G_OBJECT_CLASS(parentClass)->finalize(object);
@@ -421,12 +420,16 @@ ViewAutoDrawerFinalize(GObject *object) // IN
 static void
 ViewAutoDrawerClassInit(gpointer klass) // IN
 {
-   G_OBJECT_CLASS(klass)->finalize = ViewAutoDrawerFinalize;
+   GObjectClass *objectClass = G_OBJECT_CLASS(klass);
+   ViewOvBoxClass *ovBoxClass = VIEW_OV_BOX_CLASS(klass);
 
    parentClass = g_type_class_peek_parent(klass);
 
-   ViewOvBoxClass *ovBoxClass = VIEW_OV_BOX_CLASS(klass);
+   objectClass->finalize = ViewAutoDrawerFinalize;
+
    ovBoxClass->set_over = ViewAutoDrawerSetOver;
+
+   g_type_class_add_private(objectClass, sizeof(ViewAutoDrawerPrivate));
 }
 
 
@@ -525,7 +528,7 @@ ViewAutoDrawer_SetSlideDelay(ViewAutoDrawer *that, // IN
 {
    g_return_if_fail(VIEW_IS_AUTODRAWER(that));
 
-   that->delayValue = delay;
+   that->priv->delayValue = delay;
 }
 
 
@@ -552,7 +555,7 @@ ViewAutoDrawer_SetOverlapPixels(ViewAutoDrawer *that, // IN
 {
    g_return_if_fail(VIEW_IS_AUTODRAWER(that));
 
-   that->overlapPixels = overlapPixels;
+   that->priv->overlapPixels = overlapPixels;
    ViewAutoDrawerUpdate(that, FALSE);
 }
 
@@ -580,7 +583,7 @@ ViewAutoDrawer_SetNoOverlapPixels(ViewAutoDrawer *that,  // IN
 {
    g_return_if_fail(VIEW_IS_AUTODRAWER(that));
 
-   that->noOverlapPixels = noOverlapPixels;
+   that->priv->noOverlapPixels = noOverlapPixels;
    ViewAutoDrawerUpdate(that, FALSE);
 }
 
@@ -609,7 +612,7 @@ ViewAutoDrawer_SetActive(ViewAutoDrawer *that, // IN
 {
    g_return_if_fail(VIEW_IS_AUTODRAWER(that));
 
-   that->active = active;
+   that->priv->active = active;
    ViewAutoDrawerUpdate(that, FALSE);
 }
 
@@ -637,6 +640,6 @@ ViewAutoDrawer_SetPinned(ViewAutoDrawer *that, // IN
 {
    g_return_if_fail(VIEW_IS_AUTODRAWER(that));
 
-   that->pinned = pinned;
+   that->priv->pinned = pinned;
    ViewAutoDrawerUpdate(that, pinned);
 }

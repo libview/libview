@@ -1,3 +1,10 @@
+version 0.5.3 ():
+	* Added AutoDrawer widget that encapsulates the behaviour for the
+	  most common Drawer use case of a auto-hiding menu/toolbar.
+	* Tidied up all C Objects to remove deprecated code, to
+	  properly separate private and public data, and to add sanity
+	  checks to public calls.
+
 version 0.5.2 (Tuesday, September 27, 2005):
         * Fixed a bug in WrapLabel's wrapping that would sometimes cause
           the label to grow too high.

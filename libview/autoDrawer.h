@@ -32,7 +32,7 @@
 #define LIBVIEW_AUTODRAWER_H
 
 
-#include <gtk/gtk.h>
+#include <libview/drawer.h>
 
 
 #define VIEW_TYPE_AUTODRAWER            (ViewAutoDrawer_GetType())
@@ -42,9 +42,26 @@
 #define VIEW_IS_AUTODRAWER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), VIEW_TYPE_AUTODRAWER))
 #define VIEW_AUTODRAWER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), VIEW_TYPE_AUTODRAWER, ViewAutoDrawerClass))
 
+typedef struct _ViewAutoDrawerPrivate ViewAutoDrawerPrivate;
 
-typedef struct _ViewAutoDrawer ViewAutoDrawer;
-typedef struct _ViewAutoDrawerClass ViewAutoDrawerClass;
+typedef struct _ViewAutoDrawer {
+   /* Must come first. */
+   ViewDrawer parent;
+
+   /* Private. */
+   ViewAutoDrawerPrivate *priv;
+} ViewAutoDrawer;
+
+typedef struct _ViewAutoDrawerClass {
+   /* Must come first. */
+   ViewDrawerClass parent;
+
+   /* Padding for future expansion */
+   void (*_view_reserved0) (void);
+   void (*_view_reserved1) (void);
+   void (*_view_reserved2) (void);
+   void (*_view_reserved3) (void);
+} ViewAutoDrawerClass;
 
 
 G_BEGIN_DECLS

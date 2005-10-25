@@ -42,18 +42,14 @@
 #define VIEW_IS_OV_BOX_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), VIEW_TYPE_OV_BOX))
 #define VIEW_OV_BOX_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), VIEW_TYPE_OV_BOX, ViewOvBoxClass))
 
+typedef struct _ViewOvBoxPrivate ViewOvBoxPrivate;
 
 typedef struct _ViewOvBox {
    /* Must come first. */
    GtkBox parent;
 
-   GdkWindow *underWin;
-   GtkWidget *under;
-   GdkWindow *overWin;
-   GtkWidget *over;
-   GtkRequisition overR;
-   unsigned int min;
-   double fraction;
+   /* Private. */
+   ViewOvBoxPrivate *priv;
 } ViewOvBox;
 
 
@@ -63,6 +59,12 @@ typedef struct _ViewOvBoxClass {
 
    /* Virtual methods. */
    void (* set_over)(ViewOvBox *ovBox, GtkWidget *widget);
+
+   /* Padding for future expansion */
+   void (*_view_reserved0) (void);
+   void (*_view_reserved1) (void);
+   void (*_view_reserved2) (void);
+   void (*_view_reserved3) (void);
 } ViewOvBoxClass;
 
 

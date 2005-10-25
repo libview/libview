@@ -32,7 +32,6 @@
 #define LIBVIEW_DRAWER_H
 
 
-#include <gtk/gtk.h>
 #include <libview/ovBox.h>
 
 
@@ -43,24 +42,26 @@
 #define VIEW_IS_DRAWER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), VIEW_TYPE_DRAWER))
 #define VIEW_DRAWER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), VIEW_TYPE_DRAWER, ViewDrawerClass))
 
+typedef struct _ViewDrawerPrivate ViewDrawerPrivate;
 
 typedef struct _ViewDrawer {
    /* Must come first. */
    ViewOvBox parent;
 
-   unsigned int period;
-   double step;
-   double goal;
-   struct {
-      gboolean pending;
-      guint id;
-   } timer;
+   /* Private. */
+   ViewDrawerPrivate *priv;
 } ViewDrawer;
 
 
 typedef struct _ViewDrawerClass {
    /* Must come first. */
    ViewOvBoxClass parent;
+
+   /* Padding for future expansion */
+   void (*_view_reserved0) (void);
+   void (*_view_reserved1) (void);
+   void (*_view_reserved2) (void);
+   void (*_view_reserved3) (void);
 } ViewDrawerClass;
 
 
