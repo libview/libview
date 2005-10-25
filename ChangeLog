@@ -4,7 +4,7 @@ Tue Oct 25 00:47:19 PDT 2005  Régis Duchesne <hpreg@vmware.com>
 	* libview/ovBox.c:
 	* tests/.cvsignore:
 	* tests/Makefile.am:
-	A tests/test-ovBox.cc
+	A tests/test-ovBox.cc:
 	  - Fixed indentation in ovBox/drawer.
 	  - Fixed signedness issue reported by gcc 4.0.2 in ovBox.
 	  - Extracted ovBox unit test code into its own file.
