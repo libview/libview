@@ -37,26 +37,6 @@
 static ViewOvBoxClass *parentClass;
 
 
-struct _ViewDrawer {
-   /* Must come first. */
-   ViewOvBox parent;
-
-   unsigned int period;
-   double step;
-   double goal;
-   struct {
-      gboolean pending;
-      guint id;
-   } timer;
-};
-
-
-struct _ViewDrawerClass {
-   /* Must come first. */
-   ViewOvBoxClass parent;
-};
-
-
 /*
  *-----------------------------------------------------------------------------
  *
@@ -147,10 +127,10 @@ ViewDrawerClassInit(gpointer klass) // IN
  *
  * ViewDrawer_GetType --
  *
- *      Get the (memoized) GtkType of the ViewDrawer GTK+ object.
+ *      Get the (memoized) GType of the ViewDrawer GTK+ object.
  *
  * Results:
- *      The GtkType
+ *      The GType
  *
  * Side effects:
  *      None
@@ -158,7 +138,7 @@ ViewDrawerClassInit(gpointer klass) // IN
  *-----------------------------------------------------------------------------
  */
 
-GtkType
+GType
 ViewDrawer_GetType(void)
 {
    static GType type = 0;

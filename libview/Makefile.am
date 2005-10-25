@@ -4,6 +4,7 @@ lib_LTLIBRARIES = libview.la
 
 viewinc_HEADERS = \
 	actionGroup.hh \
+	autoDrawer.h \
 	baseBGBox.hh \
 	contentBox.hh \
 	deadEntry.hh \
@@ -29,6 +30,7 @@ viewinc_HEADERS = \
 	wrapLabel.hh
 
 libview_la_SOURCES = \
+	autoDrawer.c \
 	baseBGBox.cc \
 	contentBox.cc \
 	deadEntry.cc \

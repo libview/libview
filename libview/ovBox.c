@@ -540,6 +540,69 @@ ViewOvBoxStyleSet(GtkWidget *widget,       // IN
 }
 
 
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * ViewOvBoxSetChild --
+ *
+ *      Set a child of a ViewOvBox.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      None
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+static void
+ViewOvBoxSetChild(ViewOvBox *that,     // IN
+                  GtkWidget **child,   // IN
+                  GdkWindow *childWin, // IN
+                  GtkWidget *widget)   // IN
+{
+   GtkWidget *oldChild = *child;
+
+   if (oldChild) {
+      g_object_ref(oldChild);
+      gtk_container_remove(GTK_CONTAINER(that), oldChild);
+   }
+
+   *child = widget;
+   if (*child) {
+      gtk_widget_set_parent_window(widget, childWin);
+      gtk_container_add(GTK_CONTAINER(that), *child);
+   }
+
+   if (oldChild) {
+      g_object_unref(oldChild);
+   }
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * ViewOvBoxSetOver --
+ *
+ *      Base implementation of ViewOvBox_SetOver.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      None
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+static void
+ViewOvBoxSetOver(ViewOvBox *that,   // IN
+                 GtkWidget *widget) // IN
+{
+   ViewOvBoxSetChild(that, &that->over, that->overWin, widget);
+}
 
 
 /*
@@ -559,7 +622,7 @@ ViewOvBoxStyleSet(GtkWidget *widget,       // IN
  */
 
 static void
-ViewOvBoxClassInit(gpointer klass) // IN
+ViewOvBoxClassInit(ViewOvBoxClass *klass) // IN
 {
    GtkWidgetClass *widgetClass;
 
@@ -573,6 +636,8 @@ ViewOvBoxClassInit(gpointer klass) // IN
    widgetClass->size_allocate = ViewOvBoxSizeAllocate;
    widgetClass->style_set = ViewOvBoxStyleSet;
 
+   klass->set_over = ViewOvBoxSetOver;
+
    parentClass = g_type_class_peek_parent(klass);
 }
 
@@ -582,10 +647,10 @@ ViewOvBoxClassInit(gpointer klass) // IN
  *
  * ViewOvBox_GetType --
  *
- *      Get the (memoized) GtkType of the ViewOvBox GTK+ object.
+ *      Get the (memoized) GType of the ViewOvBox GTK+ object.
  *
  * Results:
- *      The GtkType
+ *      The GType
  *
  * Side effects:
  *      None
@@ -593,7 +658,7 @@ ViewOvBoxClassInit(gpointer klass) // IN
  *-----------------------------------------------------------------------------
  */
 
-GtkType
+GType
 ViewOvBox_GetType(void)
 {
    static GType type = 0;
@@ -648,39 +713,6 @@ ViewOvBox_New(void)
 /*
  *-----------------------------------------------------------------------------
  *
- * ViewOvBoxSetChild --
- *
- *      Set a child of a ViewOvBox.
- *
- * Results:
- *      None
- *
- * Side effects:
- *      None
- *
- *-----------------------------------------------------------------------------
- */
-
-static void
-ViewOvBoxSetChild(ViewOvBox *that,     // IN
-                  GtkWidget **child,   // IN
-                  GdkWindow *childWin, // IN
-                  GtkWidget *widget)   // IN
-{
-   if (*child) {
-      gtk_container_remove(GTK_CONTAINER(that), *child);
-   }
-   *child = widget;
-   if (*child) {
-      gtk_widget_set_parent_window(widget, childWin);
-      gtk_container_add(GTK_CONTAINER(that), *child);
-   }
-}
-
-
-/*
- *-----------------------------------------------------------------------------
- *
  * ViewOvBox_SetUnder --
  *
  *      Set the under widget of a ViewOvBox.
@@ -722,7 +754,7 @@ void
 ViewOvBox_SetOver(ViewOvBox *that,   // IN
                   GtkWidget *widget) // IN
 {
-   ViewOvBoxSetChild(that, &that->over, that->overWin, widget);
+   VIEW_OV_BOX_GET_CLASS(that)->set_over(that, widget);
 }
 
 

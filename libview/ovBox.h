@@ -60,6 +60,9 @@ typedef struct _ViewOvBox {
 typedef struct _ViewOvBoxClass {
    /* Must come first. */
    GtkBoxClass parent;
+
+   /* Virtual methods. */
+   void (* set_over)(ViewOvBox *ovBox, GtkWidget *widget);
 } ViewOvBoxClass;
 
 

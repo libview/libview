@@ -1,4 +1,5 @@
 noinst_PROGRAMS = \
+	test-auto-drawer \
 	test-dead-entry \
 	test-ovBox \
 	test-drawer \
@@ -10,6 +11,10 @@ noinst_PROGRAMS = \
 common_ldflags = \
 	$(top_builddir)/libview/libview.la \
 	$(VIEW_LIBS)
+
+
+test_auto_drawer_SOURCES = test-auto-drawer.cc
+test_auto_drawer_LDADD   = $(common_ldflags)
 
 
 test_dead_entry_SOURCES = test-dead-entry.cc

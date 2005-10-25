@@ -1,3 +1,39 @@
+Tue 25 Oct 11:16:43 PDT 2005  Philip Langdale <plangdale@vmware.com>
+
+	* libview/drawer.c
+	* libview/drawer.h:
+        - Make Drawer inheritable by moving struct definitions to the
+          header file.
+
+	* libview/ovBox.c
+	* libview/ovBox.h:
+	- Make SetOver a virtual method so that AutoDrawer is friendlier
+	  to use.
+	- Make the base SetOver implementation safe for the case of
+	  setting the same widget again, or a child of the same widget.
+
+	* libview/Makefile.am
+	A libview/autoDrawer.c
+	A libview/autoDrawer.h:
+	- Add the AutoDrawer widget. This encapsulates the policy associated
+	  with using a Drawer to implement an auto-hide menu/toolbar - which
+	  is probably the most common use. The public API is pretty simple
+	  and already documented.
+	- I will be making a second pass on all three C classes to add
+	  sanity checks and to use PRIVATE structs for private data.
+	- Note that non-GtkMenu popups from widgets in the AutoDrawer will
+	  not be handled correctly because there is no general way to
+	  get from such popups back to the 'owning' widget. The most
+	  obvious example of this is GtkEntryCompletion but it's probably
+	  equally true for GtkComboBox* and GnomeEntry, etc. I suspect
+	  that this problem is intractable without changes to those widgets
+	  to export the relationship.
+
+	* tests/.cvsignore
+	* tests/Makefile.am
+	* tests/test-auto-drawer.cc:
+	- Add a test for the AutoDrawer.
+
 Tue Oct 25 00:47:19 PDT 2005  Régis Duchesne <hpreg@vmware.com>
 
 	* libview/drawer.c:
