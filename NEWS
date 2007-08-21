@@ -1,3 +1,10 @@
+versoin 0.6.1 (Tuesday, August 21, 2007):
+	* FieldEntry should now have a proper minimum size, accounting for any
+	  extra spacing.
+	* OvBox now destroys its child windows after unrealizing all children,
+	  allowing child widgets to reparent their own windows before they're
+	  clobbered.
+
 version 0.6.0 (Monday, January 22, 2007):
 	* Fix a bug in AutoDrawer which would spew warnings if menus did not
 	  properly set their parent widget.
