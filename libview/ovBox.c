@@ -267,6 +267,7 @@ ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
    ViewOvBoxPrivate *priv;
    gboolean expand;
    gboolean fill;
+   guint padding;
    unsigned int boxWidth;
 
    priv = that->priv;
@@ -279,17 +280,19 @@ ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
       gtk_container_child_get(GTK_CONTAINER(that), priv->over,
                               "expand", &expand,
                               "fill", &fill,
+                              "padding", &padding,
                               NULL);
    } else {
       /* Default values used by GtkBox. */
       expand = TRUE;
       fill = TRUE;
+      padding = 0;
    }
 
    boxWidth = GTK_WIDGET(that)->allocation.width;
    if (!expand) {
-      *width = MIN(priv->overR.width, boxWidth);
-      *x = 0;
+      *width = MIN(priv->overR.width, boxWidth - padding);
+      *x = padding;
    } else if (!fill) {
       *width = MIN(priv->overR.width, boxWidth);
       *x = (boxWidth - *width) / 2;
@@ -431,6 +434,14 @@ ViewOvBoxUnrealize(GtkWidget *widget) // IN
    that = VIEW_OV_BOX(widget);
    priv = that->priv;
 
+   /*
+    * Unrealize the parent before destroying the windows so that we end up
+    * unrealizing all the child widgets before destroying the child windows,
+    * giving them a chance to reparent their windows before we clobber them.
+    */
+   GTK_WIDGET_CLASS(parentClass)->unrealize(widget);
+
+
    gdk_window_set_user_data(priv->underWin, NULL);
    gdk_window_destroy(priv->underWin);
    priv->underWin = NULL;
@@ -439,7 +450,6 @@ ViewOvBoxUnrealize(GtkWidget *widget) // IN
    gdk_window_destroy(priv->overWin);
    priv->overWin = NULL;
 
-   GTK_WIDGET_CLASS(parentClass)->unrealize(widget);
 }
 
 
@@ -466,6 +476,9 @@ ViewOvBoxSizeRequest(GtkWidget *widget,           // IN
    ViewOvBox *that;
    ViewOvBoxPrivate *priv;
    GtkRequisition underR;
+   gboolean expand;
+   gboolean fill;
+   guint padding;
    unsigned int min;
 
    that = VIEW_OV_BOX(widget);
@@ -474,7 +487,13 @@ ViewOvBoxSizeRequest(GtkWidget *widget,           // IN
    gtk_widget_size_request(priv->under, &underR);
    gtk_widget_size_request(priv->over, &priv->overR);
 
-   requisition->width = MAX(underR.width, priv->overR.width);
+   gtk_container_child_get(GTK_CONTAINER(that), priv->over,
+                           "expand", &expand,
+                           "fill", &fill,
+                           "padding", &padding,
+                           NULL);
+   requisition->width = MAX(underR.width,
+                            priv->overR.width + ((expand || fill) ? 0 : padding));
    min = ViewOvBoxGetActualMin(that);
    requisition->height = MAX(underR.height + min, priv->overR.height);
 }

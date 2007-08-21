@@ -63,11 +63,14 @@ protected:
 private:
    bool OnButtonPressed(GdkEventButton *event, Gtk::Widget *widget);
 
+   void DetachFromMenu(void);
    // Gtk insists on a detach callback but we don't need one.
    static void OnMenuDetached(GtkWidget *widget, GtkMenu *menu) {}
 
    // The action takes ownership of the menu.
    Gtk::Menu *mMenu;
+
+   sigc::connection mDetachConnection;
 
    std::map<Gtk::Widget *, sigc::connection> widgetMap;
 };

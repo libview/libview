@@ -44,8 +44,11 @@ class FieldEntry
    : public DeadEntry
 {
 public:
+   enum Alignment { LEFT, CENTER, RIGHT };
+
    FieldEntry(size_t fieldCount, size_t maxFieldWidth,
-              Glib::ustring::value_type delim);
+              Glib::ustring::value_type delim,
+              Alignment fieldAlignment = CENTER);
 
    void SetText(const Glib::ustring& text);
    Glib::ustring GetText(void) const;
@@ -62,7 +65,8 @@ public:
    sigc::signal<void, size_t /* oldField */> currentFieldChanged;
 
 protected:
-   virtual bool GetIsFieldValid(const Glib::ustring& str) const;
+   virtual void FilterField(Glib::ustring& fieldText) const;
+   virtual bool IsFieldValid(const Glib::ustring& str) const;
    virtual Glib::ustring GetAllowedFieldChars(size_t field) const;
 
    virtual Glib::ustring get_chars_vfunc(int startPos, int endPos) const;
@@ -70,6 +74,7 @@ protected:
    virtual void insert_text_vfunc(const Glib::ustring& text, int& position);
    virtual void delete_text_vfunc(int startPos, int endPos);
    virtual void set_position_vfunc(int position);
+   virtual void on_size_request(Gtk::Requisition* requisition);
 
 private:
    static const Glib::ustring::value_type sTabChar = '\t';
@@ -88,7 +93,9 @@ private:
                        size_t &posInField) const;
    size_t Field2Position(size_t field) const;
 
+   Alignment mFieldAlignment;
    size_t mMaxFieldWidth;
+   int mMaxTextWidth;
    Glib::ustring::value_type mDelim;
    std::vector<Field> mFields;
    Pango::TabArray mTabs;

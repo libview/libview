@@ -1,3 +1,246 @@
+Mon Aug 20 21:23:39 PDT 2007  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/ovBox.c:
+	  - Rather than having special logic, just call the parent class's
+	    realize() first, which will take care of this.
+
+	* configure.ac:
+	  - Bump the version to 0.6.1.
+
+Mon Aug 20 20:59:10 PDT 2007  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/ovBox.c:
+	  - Recurse through the children of the OvBox, calling unrealize()
+	    before we actually go and destroy the GdkWindows. This allows
+	    children to reparent their window on unrealize before we start
+	    clobbering them.
+
+Mon Aug 20 15:41:14 PDT 2007  David Trowbridge <trowbrds@gmail.com>
+
+	* libview/fieldEntry.hh:
+	* libview/fieldEntry.cc:
+	  - Add an on_size_request override which will correctly account for the
+	    extra spacing in the widget when requesting a minimum size.
+
+==================== 0.6.0 ====================
+
+Mon Jan 22 19:35:52 PST 2007  David Trowbridge <trowbrds@gmail.com>
+
+	* ChangeLog:
+	* NEWS:
+	* configure.ac:
+	  - Bump the version to 0.6.0.
+
+Wed Jan 10 15:02:13 PST 2007  Grant Patterson <grantp@vmware.com>
+
+	* libview/autoDrawer.c:
+	* libview/autoDrawer.h:
+	  - Add private variables fill (bool) and offset (int).
+	  - Add SetOffset function to set the X-offset for the drawer.
+		 If offset is -1, centers the drawer.
+	  - Modify SetFill function to set fill variable
+	  - Add RefreshPacking function: use values of fill
+	    and offset to set packing child packing properties
+		 appropriately.
+
+	* libview/ovBox.c:
+	  - If child packing "fill" and "expand" properties are both false,
+	    uses the "padding" property for the drawer's X offset.
+
+	* tests/test-auto-drawer.cc:
+	  - Add "Center" checkbox to check functionality of AutoDrawer's
+	    SetOffset function. Toggles between centered drawer and
+		 drawer offset by 10 pixels.
+
+Thu Dec 21 20:05:20 PST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* libview/autoDrawer.c:
+	  - Fix a bug in ViewAutoDrawerEnforce which was mucking up the
+	    calculation for the overlap amount set by _SetOverlapPixels.
+	    The culprit here was that it was calculating the fraction
+	    using the entire box's allocation, rather than just the "over"
+	    child's.
+
+Tue Apr 25 12:39:29 PDT 2006  Régis Duchesne <hpreg@vmware.com>
+
+	* libview/autoDrawer.c:
+	  - Handle menus which don't properly set their attach widget.
+
+==================== 0.5.6 ====================
+
+Thu Dec 15 17:50:43 PST 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/fieldEntry.cc:
+	  - Fix a bug where instead of checking if an inputted character
+	    was in a string consisting of mDelim and sTabChar, we were
+	    checking if it was in a string consisting of the added ascii
+	    values of the characters mDelim and sTabChar. This was preventing
+	    the character "6" from being entered when using "-" as the
+	    delimiter, which is how we found this.
+
+Fri Dec 02 16:13:19 PST 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* tests/.cvsignore:
+	* tests/Makefile.am:
+	A tests/test-content-box.cc:
+	  - Added a test case for the view::ContentBox widget.
+
+==================== 0.5.5 ====================
+
+Thu Nov 10 14:06:37 PST 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* ChangeLog:
+	* NEWS:
+	* configure.ac:
+	  - Bump the version to 0.5.5. Release time.
+
+Thu Nov 10 14:00:20 PST 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/header.cc:
+	* libview/header.hh:
+	  - Added alignment support to view::Header.
+
+Thu Nov 10 13:04:42 PST 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/uiGroup.cc:
+	* libview/uiGroup.hh:
+	  - Fix Merge to automatically call Unmerge if it's already merged, as
+	    per the comment description. For some reason, this was either
+	    never implemented, or removed, but enabling this doesn't seem to
+	    break anything from my tests and does fix a bug I've encountered.
+	  - Added an IsMerged() function.
+
+Thu Nov 10 12:27:12 PST 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/wrapLabel.cc:
+	  - Call SetText in the WrapLabel constructor instead of passing the
+	    text to the Gtk::Label constructor, so that we can actually get
+	    wrapping.
+
+Mon Oct 31 13:14:16 PST 2005  Régis Duchesne <hpreg@vmware.com>
+
+	* libview/autoDrawer.c:
+	  - Handle the 'pinned' user input like other types of user inputs
+	    (such as 'focused', 'grabbed'): if FALSE default to delay, if TRUE
+	    override with immediate. This way the drawer behaves consistently
+	    even when clients use SetPinned to implement a piece of the
+	    decision logic.
+
+Mon Oct 31 11:46:09 PST 2005  Régis Duchesne <hpreg@vmware.com>
+
+	* libview/autoDrawer.c:
+	  - Improved the flexibility of the decision logic. It is now obvious
+	    that it correctly does what it is supposed to do, and it now
+	    supports 'delay on focus out'.
+	  - Properly handle input grabs where the grabbing widget is a submenu.
+
+	* tests/test-auto-drawer.cc:
+	  - 'Long delay' is now 1s., to give enough time to the testing user to
+	    change things while the delay is pending.
+
+Fri 28 Oct 16:08:15 PDT 2005  Philip Langdale <plangdale@vmware.com>
+
+	* libview/autoDrawer.c:
+	  - Fix bug where deactivating the autoDrawer while it was moving
+	    would not do the right thing.
+	  - Add generic support for keeping the autoDrawer open while
+	    the focus is inside it.
+
+Fri Oct 28 15:57:35 PDT 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* NEWS:
+	* configure.ac:
+	  - Update the version to 0.5.4.90 for development.
+
+==================== 0.5.4 ====================
+
+Thu Oct 27 17:48:26 PDT 2005  Christian Hammond <chipx86@chipx86.com>
+
+	* NEWS:
+	* configure.ac:
+	  - Updated the version and NEWS to 0.5.4.
+
+Thu 27 Oct 16:47:51 PDT 2005  Philip Langdale <plangdale@vmware.com>
+
+	* libview/autoDrawer.c
+	* libview/autoDrawer.h
+	* tests/test-auto-drawer.cc:
+	  - Whoops. There was one more public API call that the
+	    autoDrawer needed, but I forgot to add. It lets you
+	    set whether the 'over' widget should occupy the full
+	    widget of the autoDrawer or whether it should just
+	    be centred and occupy as little space as possible.
+
+==================== 0.5.3 ====================
+
+Thu 27 Oct 14:06:23 PDT 2005  Philip Langdale <plangdale@vmware.com>
+
+	* libview/menuToggleAction.cc
+	* libview/menuToggleAction.hh:
+	  - Fixed detaching proxy widget from menu. I wasn't
+	    disconnecting the callback after it fires.
+
+Thu Oct 27 11:23:08 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
+
+	* NEWS:
+	* configure.ac:
+	  - Bumped the version to 0.5.3. Releasing.
+
+Thu Oct 27 11:00:02 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
+
+	* libview/fieldEntry.cc:
+	* libview/fieldEntry.hh:
+	* libview/ipEntry.cc:
+	* libview/ipEntry.hh:
+	* tests/test-field-entry.cc:
+	  - Improved FieldEntry validation a bit more.
+	  - Added a FilterField virtual function that can modify a field as a
+	    user is typing in it. The resulting field is still subject to the
+	    validation rules.
+
+Tue Oct 25 22:43:22 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
+
+	* libview/ipEntry.cc:
+	* libview/ipEntry.hh:
+	  - Update IPEntry to work with and take advantage of the new
+	    validation changes
+
+Tue Oct 25 22:17:33 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
+
+	* libview/fieldEntry.cc:
+	* libview/fieldEntry.hh:
+	* tests/test-field-entry.cc:
+	  - Improve validation more to check the results of
+	    GetAllowedFieldChars() for valid characters.
+	  - Allow GetIsFieldValid() to modify the returned string. This is
+	    useful to uppercase the string.
+
+Tue Oct 25 21:57:21 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
+
+	* libview/fieldEntry.cc:
+	* libview/fieldEntry.hh:
+	* tests/.cvsignore:
+	* tests/Makefile.am:
+	A tests/test-field-entry.cc:
+	* tests/test-ip-entry.cc:
+	* configure.ac:
+	  - Added field alignment support to FieldEntry.
+	  - Fixed validation to do a length check beforehand, so that the subclass
+	    doesn't have to enforce the length in GetIsFieldValid().
+	  - Added a test-field-entry app.
+
+Tue Oct 25 21:18:00 PDT 2005  Christian Hammond <chipx86@gnupdate.org>
+
+	* libview/Makefile.am:
+	* tests/Makefile.am:
+	* configure.ac:
+	  - The AM_CPPFLAGS addition doesn't work with all versions of automake,
+	    and failed horribly on mine. Since there are times when users may not
+	    want the DISABLE_DEPRECATED flags set, I've moved the code into a
+	    conditional that by default adds them to DEBUG_CFLAGS, but can be
+	    turned of by --enable-deprecated. I then added DEBUG_CFLAGS to each
+	    Makefile.am's INCLUDES line. This should work everywhere.
+
 Tue 25 Oct 15:40:07 PDT 2005  Philip Langdale <plangdale@vmware.com>
 
 	* libview/autoDrawer.c

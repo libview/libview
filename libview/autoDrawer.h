@@ -57,10 +57,10 @@ typedef struct _ViewAutoDrawerClass {
    ViewDrawerClass parent;
 
    /* Padding for future expansion */
-   void (*_view_reserved0) (void);
-   void (*_view_reserved1) (void);
-   void (*_view_reserved2) (void);
-   void (*_view_reserved3) (void);
+   void (*_view_reserved0)(void);
+   void (*_view_reserved1)(void);
+   void (*_view_reserved2)(void);
+   void (*_view_reserved3)(void);
 } ViewAutoDrawerClass;
 
 
@@ -78,6 +78,10 @@ void ViewAutoDrawer_SetNoOverlapPixels(ViewAutoDrawer *that, guint noOverlapPixe
 void ViewAutoDrawer_SetActive(ViewAutoDrawer *that, gboolean active);
 
 void ViewAutoDrawer_SetPinned(ViewAutoDrawer *that, gboolean pinned);
+
+void ViewAutoDrawer_SetFill(ViewAutoDrawer *that, gboolean fill);
+
+void ViewAutoDrawer_SetOffset(ViewAutoDrawer *that, gint offset);
 
 G_END_DECLS
 

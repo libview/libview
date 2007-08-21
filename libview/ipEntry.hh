@@ -54,7 +54,8 @@ public:
    unsigned long GetDotlessIP(void) const;
 
 protected:
-   virtual bool GetIsFieldValid(const Glib::ustring& str) const;
+   /* Re-implemented view::FieldEntry methods */
+   virtual bool IsFieldValid(const Glib::ustring& str) const;
    virtual Glib::ustring GetAllowedFieldChars(size_t field) const;
 
    virtual bool on_focus_out_event(GdkEventFocus* event);

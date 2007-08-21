@@ -42,9 +42,12 @@ class Header
    : public Gtk::MenuItem
 {
 public:
-   Header(const Glib::ustring &markup);
+   enum Alignment { LEFT, CENTER, RIGHT };
+
+   Header(const Glib::ustring &markup, Alignment align = LEFT);
 
    void SetMarkup(const Glib::ustring &markup);
+   void SetAlignment(Alignment align);
 
 protected:
    void on_style_changed(const Glib::RefPtr<Gtk::Style> &oldStyle);
@@ -52,29 +55,6 @@ protected:
 private:
    Gtk::Label mLabel;
 };
-
-
-/*
- *-----------------------------------------------------------------------------
- *
- * ui::Header::SetMarkup --
- *
- *      Set the markup text of the header.
- *
- * Results:
- *      None
- *
- * Side effects:
- *      None
- *
- *-----------------------------------------------------------------------------
- */
-
-inline void
-Header::SetMarkup(const Glib::ustring &markup) // IN
-{
-   mLabel.set_markup(markup);
-}
 
 
 } // namespace view

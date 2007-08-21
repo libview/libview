@@ -96,6 +96,8 @@ GtkWidget *cb2;
 GtkWidget *cb3;
 GtkWidget *cb4;
 GtkWidget *cb5;
+GtkWidget *cb6;
+GtkWidget *cb7;
 
 
 static void
@@ -130,7 +132,7 @@ OnDelay(GtkWidget *widget,
         gpointer user_data)
 {
    ViewAutoDrawer_SetSlideDelay(VIEW_AUTODRAWER(drawer),
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb3)) ? 300 : 0);
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb3)) ? 1000 : 0);
 }
 
 
@@ -149,6 +151,24 @@ OnOverlap(GtkWidget *widget,
 {
    ViewAutoDrawer_SetOverlapPixels(VIEW_AUTODRAWER(drawer),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb5)) ? 2 : 0);
+}
+
+
+static void
+OnFill(GtkWidget *widget,
+       gpointer user_data)
+{
+   ViewAutoDrawer_SetFill(VIEW_AUTODRAWER(drawer),
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb6)));
+}
+
+
+static void
+OnCenter(GtkWidget *widget,
+         gpointer user_data)
+{
+   ViewAutoDrawer_SetOffset(VIEW_AUTODRAWER(drawer),
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb7)) ? -1 : 10);
 }
 
 
@@ -260,6 +280,22 @@ main(int argc,
   g_signal_connect(G_OBJECT(cb5), "toggled",
                    G_CALLBACK(OnOverlap), NULL);
   OnOverlap(NULL, NULL);
+
+  cb6 = gtk_check_button_new_with_label("Fill width");
+  gtk_widget_show(cb6);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb6), TRUE);
+  gtk_box_pack_start(GTK_BOX(vbox), cb6, FALSE, FALSE, 0);
+  g_signal_connect(G_OBJECT(cb6), "toggled",
+                   G_CALLBACK(OnFill), NULL);
+  OnFill(NULL, NULL);
+
+  cb7 = gtk_check_button_new_with_label("Center");
+  gtk_widget_show(cb7);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb7), TRUE);
+  gtk_box_pack_start(GTK_BOX(vbox), cb7, FALSE, FALSE, 0);
+  g_signal_connect(G_OBJECT(cb7), "toggled",
+                   G_CALLBACK(OnCenter), NULL);
+  OnCenter(NULL, NULL);
 
   gtk_main();
 

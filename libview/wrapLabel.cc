@@ -51,11 +51,11 @@ namespace view {
  */
 
 WrapLabel::WrapLabel(const Glib::ustring &text) // IN: The label text
-   : Gtk::Label(text),
-     mWrapWidth(0)
+   : mWrapWidth(0)
 {
    get_layout()->set_wrap(Pango::WRAP_WORD_CHAR);
    set_alignment(0.0, 0.0);
+   set_text(text);
 }
 
 
@@ -187,9 +187,9 @@ WrapLabel::on_size_allocate(Gtk::Allocation &alloc) // IN: Our allocation
 void
 WrapLabel::SetWrapWidth(size_t width) // IN: The wrap width
 {
-	if (width == 0) {
-		return;
-	}
+   if (width == 0) {
+      return;
+   }
 
    /*
     * We may need to reset the wrap width, so do this regardless of whether

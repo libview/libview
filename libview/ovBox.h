@@ -61,10 +61,10 @@ typedef struct _ViewOvBoxClass {
    void (* set_over)(ViewOvBox *ovBox, GtkWidget *widget);
 
    /* Padding for future expansion */
-   void (*_view_reserved0) (void);
-   void (*_view_reserved1) (void);
-   void (*_view_reserved2) (void);
-   void (*_view_reserved3) (void);
+   void (*_view_reserved0)(void);
+   void (*_view_reserved1)(void);
+   void (*_view_reserved2)(void);
+   void (*_view_reserved3)(void);
 } ViewOvBoxClass;
 
 

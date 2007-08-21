@@ -1,6 +1,43 @@
-version 0.5.3 ():
-	* Added AutoDrawer widget that encapsulates the behaviour for the
+version 0.6.0 (Monday, January 22, 2007):
+	* Fix a bug in AutoDrawer which would spew warnings if menus did not
+	  properly set their parent widget.
+	* Fix a bug in AutoDrawer which was mucking up the result of
+	  ViewAutoDrawer_SetOverlapPixels.
+	* Add the capability for an AutoDrawer to be positioned at a certain
+	  horizontal offset, rather than just toggled between fill and center.
+
+version 0.5.6 (Thursday, December 15, 2005):
+	* Fix a bug where instead of checking if an inputted character
+	  was in a string consisting of mDelim and sTabChar, we were
+	  checking if it was in a string consisting of the added ascii
+	  values of the characters mDelim and sTabChar. This was preventing
+	  the character "6" from being entered when using "-" as the
+	  delimiter, which is how we found this.
+	* Added a test case for the view::ContentBox widget.
+
+version 0.5.5 (Thursday, November 10, 2005):
+	* Fixed a bug in UIGroup where Merge wouldn't call Unmerge if the
+	  group was already merged.
+	* Fixed a bug where deactivating the AutoDrawer while it was moving
+	  would not do the right thing.
+	* Added support for keeping the AutoDrawer open while the focus is
+	  inside it.
+	* Added support for setting an alignment in the Header widget.
+	* WrapLabel now wraps properly when being passed text in its
+	  constructor.
+
+version 0.5.4 (Thursday, October 27, 2005):
+	* Added a missing public API function needed for AutoDrawer.
+
+version 0.5.3 (Thursday, October 27, 2005):
+	* Added the AutoDrawer widget that encapsulates the behaviour for the
 	  most common Drawer use case of a auto-hiding menu/toolbar.
+	* Added the FieldEntry widget, which subclasses Gtk::Entry and provides
+	  multiple delimiter-separated fields with alignments and
+	  per-field validation.
+	* Added the IPEntry widget, which is a FieldEntry subclass for entering
+	  IP addresses. Unlike most IP entries, this one makes a best attempt to
+	  not get in the user's way.
 	* Tidied up all C Objects to remove deprecated code, to
 	  properly separate private and public data, and to add sanity
 	  checks to public calls.

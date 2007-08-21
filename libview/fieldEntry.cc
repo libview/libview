@@ -57,8 +57,10 @@ namespace view {
 FieldEntry::FieldEntry(size_t fieldCount,               // IN: Number of fields
                        size_t maxFieldWidth,            // IN: Max Field width
                                                         //     in chars
-                       Glib::ustring::value_type delim) // IN: Delimiter text
-   : mMaxFieldWidth(maxFieldWidth),
+                       Glib::ustring::value_type delim, // IN: Delimiter text
+                       Alignment fieldAlignment)        // IN: Field alignment
+   : mFieldAlignment(fieldAlignment),
+     mMaxFieldWidth(maxFieldWidth),
      mDelim(delim),
      mTabs(0)
 {
@@ -337,10 +339,40 @@ FieldEntry::GetFieldCount(void)
 /*
  *-----------------------------------------------------------------------------
  *
- * view::FieldEntry::GetIsFieldValid --
+ * view::FieldEntry::FilterField --
+ *
+ *      Filters the field text, changing it as the implementation sees fit.
+ *      This is useful for converting the field to uppercase on the fly,
+ *      for example. The resulting text will be validated for length and
+ *      allowed characters.
+ *
+ *      The default implementation doesn't touch the field text.
+ *
+ * Results:
+ *      None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+void
+FieldEntry::FilterField(Glib::ustring& fieldText) // IN/OUT
+   const
+{
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * view::FieldEntry::IsFieldValid --
  *
  *      Virtual function to determine if the specified text is valid for
- *      a field.
+ *      a field. This does not need to check for string length or valid
+ *      characters (assuming GetAllowedFieldChars() returns a non-empty
+ *      string).
  *
  * Results:
  *      true if the text is valid, or false.
@@ -352,7 +384,7 @@ FieldEntry::GetFieldCount(void)
  */
 
 bool
-FieldEntry::GetIsFieldValid(const Glib::ustring& str) // IN: New data
+FieldEntry::IsFieldValid(const Glib::ustring& str) // IN: New data
    const
 {
    return true;
@@ -531,7 +563,22 @@ FieldEntry::insert_text_vfunc(const Glib::ustring& text, // IN:
          /* The operation is an insertion of the character. */
          Glib::ustring temp = mFields[candidateField].val;
          temp.insert(candidatePosInField, 1, text[i]);
-         if (!GetIsFieldValid(temp)) {
+
+         if (temp.length() > mMaxFieldWidth) {
+            break;
+         }
+
+         FilterField(temp);
+
+         const Glib::ustring& validChars = GetAllowedFieldChars(field);
+         std::string delimTabSet;
+         delimTabSet += mDelim;
+         delimTabSet += sTabChar;
+
+         if (temp.length() > mMaxFieldWidth ||
+             (!validChars.empty() &&
+              temp.find_first_not_of(validChars) != Glib::ustring::npos) ||
+             temp.find_first_of(delimTabSet) != Glib::ustring::npos) {
             break;
          }
 
@@ -729,6 +776,48 @@ FieldEntry::set_position_vfunc(int position) // IN: The new position
 /*
  *-----------------------------------------------------------------------------
  *
+ * view::FieldEntry::on_size_request --
+ *
+ *      Overridden virtual function to set the minimum size for the widget.
+ *
+ * Results:
+ *      None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+void
+FieldEntry::on_size_request(Gtk::Requisition* requisition) // OUT:
+{
+   /*
+    * This hack will only work when width_chars is -1 internal to the GtkEntry.
+    * In order to ensure that, we temporarily save and replace it.
+    */
+   GtkEntry* entry = GTK_ENTRY(gobj());
+   int width_chars = entry->width_chars;
+   entry->width_chars = -1;
+   DeadEntry::on_size_request(requisition);
+
+   /*
+    * The "150" magic number is the MIN_ENTRY_WIDTH value from inside
+    * gtkentry.c.  This lets us pull out the border size without duplicating
+    * all of the hairy calculations that GtkEntry does internally.
+    */
+
+   int border = requisition->width - 150;
+   ComputeLayout();
+   requisition->width = mMaxTextWidth + border;
+
+   entry->width_chars = width_chars;
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
  * view::FieldEntry::ComputeLayout --
  *
  *      Compute the entire layout state: marked up string and associated
@@ -778,7 +867,35 @@ FieldEntry::ComputeLayout()
       int maxTextWidth = utils::GetLargestCharStrWidth(*this, allowedChars,
                                                        mMaxFieldWidth);
 
-      int fieldOffset = offset + (maxTextWidth - textWidth) / 2;
+      int fieldOffset;
+
+      switch (mFieldAlignment) {
+          case LEFT:
+              fieldOffset = offset;
+              break;
+
+          case CENTER:
+              fieldOffset = offset + (maxTextWidth - textWidth) / 2;
+              break;
+
+          case RIGHT:
+              fieldOffset = offset + maxTextWidth - textWidth;
+              break;
+
+          default:
+              g_assert_not_reached();
+              break;
+      }
+
+      /*
+       * Right-aligned entries have tabs before each field, Left-aligned ones
+       * have tabs after each, and center-aligned fields have tabs both before
+       * and after.
+       *
+       * Left: XX\t-XX\t-XX\t
+       * Right: \tXX-\tXX-\tXX
+       * Center: \tXX\t-\tXX\t-\tXX\t
+       */
 
       if (fieldOffset != offset) {
          mMarkedUp += sTabChar;
@@ -806,6 +923,8 @@ FieldEntry::ComputeLayout()
          mMarkedUp += mDelim;
          offset += delimWidth;
       }
+
+      mMaxTextWidth = offset;
    }
 
    /* Resize in case we have used less tab stops than the max. */

@@ -59,4 +59,5 @@ libview_la_LDFLAGS = \
 
 INCLUDES = \
 	-I$(top_srcdir) \
-	$(VIEW_CFLAGS)
+	$(VIEW_CFLAGS) \
+	$(DEBUG_CFLAGS)

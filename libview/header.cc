@@ -55,18 +55,82 @@ namespace view {
  *-----------------------------------------------------------------------------
  */
 
-Header::Header(const Glib::ustring &markup) // IN
+Header::Header(const Glib::ustring &markup, // IN: Markup text
+               Alignment align)             // IN: Default alignment
    : Gtk::MenuItem(),
      mLabel()
 {
    mLabel.show();
    add(mLabel);
-   mLabel.set_alignment(0, 0.5);
-   mLabel.set_justify(Gtk::JUSTIFY_LEFT);
 
    SetMarkup(markup);
+   SetAlignment(align);
 
    select();
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * view::Header::SetMarkup --
+ *
+ *      Set the markup text of the header.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      None
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+void
+Header::SetMarkup(const Glib::ustring& markup) // IN: The markup text
+{
+   mLabel.set_markup(markup);
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * view::Header::SetAlignment --
+ *
+ *      Sets the alignment of the text inside the header.
+ *
+ * Results:
+ *      None.
+ *
+ * Side effects:
+ *      None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+void
+Header::SetAlignment(Alignment align) // IN: The new alignment
+{
+   switch (align) {
+   case LEFT:
+      mLabel.set_alignment(0, 0.5);
+      mLabel.set_justify(Gtk::JUSTIFY_LEFT);
+      break;
+
+   case CENTER:
+      mLabel.set_alignment(0.5, 0.5);
+      mLabel.set_justify(Gtk::JUSTIFY_CENTER);
+      break;
+
+   case RIGHT:
+      mLabel.set_alignment(1, 0.5);
+      mLabel.set_justify(Gtk::JUSTIFY_RIGHT);
+      break;
+
+   default:
+      g_assert_not_reached();
+   }
 }
 
 

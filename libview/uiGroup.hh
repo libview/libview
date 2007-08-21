@@ -68,6 +68,8 @@ public:
    void Merge(Glib::RefPtr<Gtk::UIManager> uiManager) const;
    void Unmerge(Glib::RefPtr<Gtk::UIManager> uiManager) const;
 
+   bool IsMerged(void) const;
+
    // Producers should call this to signal consumers that the group has changed.
    void EmitChanged(void);
 

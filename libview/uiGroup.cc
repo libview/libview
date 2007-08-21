@@ -29,6 +29,7 @@
 
 #include <libview/uiGroup.hh>
 
+
 namespace view {
 
 
@@ -49,7 +50,8 @@ namespace view {
  */
 
 UIGroup::UIGroup()
-       : Glib::Object(), mUIEntries(), mMergeID(0), mMerged(false)
+   : mMergeID(0),
+     mMerged(false)
 {
 
 }
@@ -178,6 +180,8 @@ UIGroup::Merge(Glib::RefPtr<Gtk::UIManager> uiManager) // IN: UIManager
    const
 {
    if (mUIEntries.size()) {
+      Unmerge(uiManager);
+
       mMergeID = uiManager->new_merge_id();
 
       for (const_iterator i = mUIEntries.begin(); i != mUIEntries.end(); i++) {
@@ -214,10 +218,34 @@ void
 UIGroup::Unmerge(Glib::RefPtr<Gtk::UIManager> uiManager) // IN: UIManager
    const
 {
-   if (mMerged) {
+   if (IsMerged()) {
       uiManager->remove_ui(mMergeID);
       mMerged = false;
    }
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * view::UIGroup::IsMerged --
+ *
+ *      Returns whether or not the UIGroup is currently merged.
+ *
+ * Results:
+ *      true if merged, or false otherwise.
+ *
+ * Side effects:
+ *      None.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+bool
+UIGroup::IsMerged(void)
+   const
+{
+   return mMerged;
 }
 
 

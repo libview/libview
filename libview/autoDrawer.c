@@ -39,12 +39,18 @@ struct _ViewAutoDrawerPrivate
    gboolean pinned;
    gboolean inputUngrabbed;
 
+   gboolean opened;
+
+   gboolean fill;
+   gint offset;
+
    guint delayConnection;
    guint delayValue;
    guint overlapPixels;
    guint noOverlapPixels;
 
-   GtkEventBox *evBox;
+   GtkWidget *over;
+   GtkWidget *evBox;
 };
 
 #define VIEW_AUTODRAWER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), VIEW_TYPE_AUTODRAWER, ViewAutoDrawerPrivate))
@@ -56,9 +62,78 @@ static ViewDrawerClass *parentClass;
 /*
  *-----------------------------------------------------------------------------
  *
+ * ViewAutoDrawerEnforce --
+ *
+ *      Enforce an AutoDrawer's goal now.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      None
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+static void
+ViewAutoDrawerEnforce(ViewAutoDrawer *that, // IN
+                      gboolean animate)     // IN
+{
+   double fraction;
+   ViewAutoDrawerPrivate *priv = that->priv;
+
+   if (!priv->active) {
+      ViewOvBox_SetMin(VIEW_OV_BOX(that), -1);
+      ViewOvBox_SetFraction(VIEW_OV_BOX(that), 0);
+      return;
+   }
+
+   g_assert(priv->over != NULL);
+   g_assert(GTK_IS_WIDGET(priv->over));
+
+   ViewOvBox_SetMin(VIEW_OV_BOX(that), priv->noOverlapPixels);
+   fraction = priv->opened
+      ? 1 : ((double)priv->overlapPixels / priv->over->allocation.height);
+   if (!animate) {
+      ViewOvBox_SetFraction(VIEW_OV_BOX(that), fraction);
+   }
+   ViewDrawer_SetGoal(VIEW_DRAWER(that), fraction);
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * ViewAutoDrawerOnEnforceDelay --
+ *
+ *      Callback fired when a delayed update happens to update the drawer state.
+ *
+ * Results:
+ *      FALSE to indicate timer should not repeat.
+ *
+ * Side effects:
+ *      None
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+static gboolean
+ViewAutoDrawerOnEnforceDelay(ViewAutoDrawer *that) // IN
+{
+   that->priv->delayConnection = 0;
+   ViewAutoDrawerEnforce(that, TRUE);
+
+   return FALSE;
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
  * ViewAutoDrawerUpdate --
  *
- *      Update the drawer state.
+ *      Decide whether an AutoDrawer should be opened or closed, and enforce
+ *      that decision now or later.
  *
  * Results:
  *      None
@@ -73,40 +148,69 @@ static void
 ViewAutoDrawerUpdate(ViewAutoDrawer *that, // IN
                      gboolean immediate)   // IN
 {
-   gboolean show;
-   double fraction;
-
    ViewAutoDrawerPrivate *priv = that->priv;
-   GtkWidget *widget = GTK_WIDGET(priv->evBox);
    GtkWidget *toplevel = gtk_widget_get_toplevel(GTK_WIDGET(that));
+   GtkWindow *window;
 
    if (!toplevel || !GTK_WIDGET_TOPLEVEL(toplevel)) {
       // The autoDrawer cannot function properly without a toplevel.
       return;
    }
+   window = GTK_WINDOW(toplevel);
 
-   if (!priv->active) {
-      ViewOvBox_SetMin(VIEW_OV_BOX(that), -1);
-      ViewOvBox_SetFraction(VIEW_OV_BOX(that), 0);
-      return;
-   }
+   /*
+    * We decide to open the drawer by OR'ing several conditions. Evaluating a
+    * condition can have the side-effect of setting 'immediate' to TRUE, so we
+    * cannot stop evaluating the conditions after we have found one to be TRUE.
+    */
+
+   priv->opened = FALSE;
+
+   /* Is the AutoDrawer pinned? */
 
    if (priv->pinned) {
-      show = TRUE;
-   } else if (priv->inputUngrabbed) {
-      int x, y;
+      immediate = TRUE;
 
-      g_assert(gtk_container_get_border_width(GTK_CONTAINER(widget)) == 0);
+      priv->opened = TRUE;
+   }
 
-      gtk_widget_get_pointer(widget, &x, &y);
+   /* Is the mouse cursor inside the event box? */
 
-      show = (guint)x < (guint)widget->allocation.width &&
-             (guint)y < (guint)widget->allocation.height;
-   } else {
-      GtkWindow *window;
+   {
+      int x;
+      int y;
+
+      gtk_widget_get_pointer(priv->evBox, &x, &y);
+      g_assert(gtk_container_get_border_width(   GTK_CONTAINER(priv->evBox))
+                                              == 0);
+      if (   (guint)x < (guint)priv->evBox->allocation.width
+          && (guint)y < (guint)priv->evBox->allocation.height) {
+         priv->opened = TRUE;
+      }
+   }
+
+   /* If there is a focused widget, is it inside the event box? */
+
+   {
+      GtkWidget *focus;
+
+      focus = gtk_window_get_focus(window);
+      if (focus && gtk_widget_is_ancestor(focus, priv->evBox)) {
+         /*
+          * Override the default 'immediate' to make sure the 'over' widget
+          * immediately appears along with the widget the focused widget.
+          */
+         immediate = TRUE;
+
+         priv->opened = TRUE;
+      }
+   }
+
+   /* If input is grabbed, is it on behalf of a widget inside the event box? */
+
+   if (!priv->inputUngrabbed) {
       GtkWidget *grabbed = NULL;
 
-      window = GTK_WINDOW(toplevel);
       if (window->group && window->group->grabs) {
          grabbed = GTK_WIDGET(window->group->grabs->data);
       }
@@ -116,79 +220,61 @@ ViewAutoDrawerUpdate(ViewAutoDrawer *that, // IN
       g_assert(grabbed);
 
       if (GTK_IS_MENU(grabbed)) {
-         grabbed = gtk_menu_get_attach_widget(GTK_MENU(grabbed));
-         g_return_if_fail(grabbed);
+         /*
+          * With cascading menus, the deepest menu owns the grab. Traverse the
+          * menu hierarchy up until we reach the attach widget for the whole
+          * hierarchy.
+          */
+
+         for (;;) {
+            GtkWidget *menuAttach;
+            GtkWidget *menuItemParent;
+
+            menuAttach = gtk_menu_get_attach_widget(GTK_MENU(grabbed));
+            if (!menuAttach) {
+               /*
+                * It is unfortunately not mandatory for a menu to have a proper
+                * attach widget set.
+                */
+               break;
+            }
+
+            grabbed = menuAttach;
+            if (!GTK_IS_MENU_ITEM(grabbed)) {
+               break;
+            }
+
+            menuItemParent = gtk_widget_get_parent(grabbed);
+            g_return_if_fail(menuItemParent);
+            if (!GTK_IS_MENU(menuItemParent)) {
+               break;
+            }
+
+            grabbed = menuItemParent;
+         }
       }
-      show = gtk_widget_is_ancestor(grabbed, widget);
+
+      if (gtk_widget_is_ancestor(grabbed, priv->evBox)) {
+         /*
+          * Override the default 'immediate' to make sure the 'over' widget
+          * immediately appears along with the widget the grab happens on
+          * behalf of.
+          */
+         immediate = TRUE;
+
+         priv->opened = TRUE;
+      }
    }
-
-   ViewOvBox_SetMin(VIEW_OV_BOX(that), priv->noOverlapPixels);
-
-   fraction = show ? 1 : (double)priv->overlapPixels / widget->allocation.height;
-
-   if (G_UNLIKELY(immediate)) {
-      ViewOvBox_SetFraction(VIEW_OV_BOX(that), fraction);
-   } else {
-      ViewDrawer_SetGoal(VIEW_DRAWER(that), fraction);
-   }
-}
-
-
-/*
- *-----------------------------------------------------------------------------
- *
- * ViewAutoDrawerOnUpdateDelay --
- *
- *      Callback fired when a delayed update happens to update the drawer state.
- *
- * Results:
- *      FALSE to indicate timer should not repeat.
- *
- * Side effects:
- *      None
- *
- *-----------------------------------------------------------------------------
- */
-
-static gboolean
-ViewAutoDrawerOnUpdateDelay(ViewAutoDrawer *that) // IN
-{
-   that->priv->delayConnection = 0;
-   ViewAutoDrawerUpdate(that, FALSE);
-
-   return FALSE;
-}
-
-
-/*
- *-----------------------------------------------------------------------------
- *
- * ViewAutoDrawerScheduleUpdate --
- *
- *      Schedule a delayed update of the drawer state. Any pending updates are
- *      canceled first.
- *
- * Results:
- *      None
- *
- * Side effects:
- *      None
- *
- *-----------------------------------------------------------------------------
- */
-
-static void
-ViewAutoDrawerScheduleUpdate(ViewAutoDrawer *that) // IN
-{
-   ViewAutoDrawerPrivate *priv = that->priv;
 
    if (priv->delayConnection) {
       g_source_remove(priv->delayConnection);
    }
-
-   priv->delayConnection = g_timeout_add(priv->delayValue,
-                                         (GSourceFunc)ViewAutoDrawerOnUpdateDelay,
-                                         that);
+   if (immediate) {
+      ViewAutoDrawerEnforce(that, FALSE);
+   } else {
+      priv->delayConnection = g_timeout_add(priv->delayValue,
+         (GSourceFunc)ViewAutoDrawerOnEnforceDelay, that);
+   }
 }
 
 
@@ -210,11 +296,16 @@ ViewAutoDrawerScheduleUpdate(ViewAutoDrawer *that) // IN
  */
 
 static gboolean
-ViewAutoDrawerOnOverEnterLeave(GtkEventBox *evBox,      // IN
+ViewAutoDrawerOnOverEnterLeave(GtkWidget *evBox,        // IN: Unused
                                GdkEventCrossing *event, // IN
                                ViewAutoDrawer *that)    // IN
 {
-   ViewAutoDrawerScheduleUpdate(that);
+   /*
+    * This change happens in response to user input. By default, give the user
+    * some time to correct his input before reacting to the change.
+    */
+   ViewAutoDrawerUpdate(that, FALSE);
+
    return FALSE;
 }
 
@@ -236,20 +327,49 @@ ViewAutoDrawerOnOverEnterLeave(GtkEventBox *evBox,      // IN
  */
 
 static void
-ViewAutoDrawerOnGrabNotify(GtkEventBox *evBox,   // IN
+ViewAutoDrawerOnGrabNotify(GtkWidget *evBox,     // IN: Unused
                            gboolean ungrabbed,   // IN
                            ViewAutoDrawer *that) // IN
 {
    ViewAutoDrawerPrivate *priv = that->priv;
-
+   
    priv->inputUngrabbed = ungrabbed;
+
    /*
-    * We want to update immediately on a grab so the over widget immediately
-    * appears along with the grabbing widget, but we delay on ungrab to be
-    * friendly.
+    * This change happens in response to user input. By default, give the user
+    * some time to correct his input before reacting to the change.
     */
-   priv->inputUngrabbed ? ViewAutoDrawerScheduleUpdate(that) : 
-                          ViewAutoDrawerUpdate(that, TRUE);
+   ViewAutoDrawerUpdate(that, FALSE);
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * ViewAutoDrawerOnSetFocus --
+ *
+ *      Respond to changes in the focus widget of the autoDrawer's toplevel
+ *      by recalculating the state.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      Drawer state is updated.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+static void
+ViewAutoDrawerOnSetFocus(GtkWindow *window,    // IN
+                         GtkWidget *widget,    // IN
+                         ViewAutoDrawer *that) // IN
+{
+   /*
+    * This change happens in response to user input. By default, give the user
+    * some time to correct his input before reacting to the change.
+    */
+   ViewAutoDrawerUpdate(that, FALSE);
 }
 
 
@@ -271,9 +391,23 @@ ViewAutoDrawerOnGrabNotify(GtkEventBox *evBox,   // IN
  */
 
 static void
-ViewAutoDrawerOnHierarchyChanged(ViewAutoDrawer *that, // IN
-				 GtkWidget *toplevel)  // IN
+ViewAutoDrawerOnHierarchyChanged(ViewAutoDrawer *that,   // IN
+				 GtkWidget *oldToplevel) // IN
 {
+   GtkWidget *newToplevel = gtk_widget_get_toplevel(GTK_WIDGET(that));
+
+   if (oldToplevel && GTK_WIDGET_TOPLEVEL(oldToplevel)) {
+      g_signal_handlers_disconnect_by_func(oldToplevel,
+                                           G_CALLBACK(ViewAutoDrawerOnSetFocus),
+                                           that);
+   }
+
+   if (newToplevel && GTK_WIDGET_TOPLEVEL(newToplevel)) {
+      g_signal_connect_after(newToplevel, "set-focus",
+                             G_CALLBACK(ViewAutoDrawerOnSetFocus), that);
+   }
+
+   /* This change happens programmatically. Always react to it immediately. */
    ViewAutoDrawerUpdate(that, TRUE);
 }
 
@@ -315,6 +449,41 @@ ViewAutoDrawerSetOver(ViewOvBox *ovBox,  // IN
    if (oldChild) {
       g_object_unref(oldChild);
    }
+
+   priv->over = widget;
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * ViewAutoDrawerRefreshPacking --
+ *
+ *      Sets the actual packing values for fill, expand, and packing
+ *      given internal settings.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      Drawer state is updated.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+void
+ViewAutoDrawerRefreshPacking(ViewAutoDrawer *that) // IN
+{
+   gboolean expand;
+   gboolean fill;
+   guint padding;
+
+   expand = (that->priv->fill || (that->priv->offset < 0));
+   fill = that->priv->fill;
+   padding = (expand || fill) ? 0 : that->priv->offset;
+   
+   gtk_box_set_child_packing(GTK_BOX(that), that->priv->evBox,
+                             expand, fill, padding, GTK_PACK_START);
 }
 
 
@@ -353,9 +522,12 @@ ViewAutoDrawerInit(GTypeInstance *instance, // IN
    priv->overlapPixels = 0;
    priv->noOverlapPixels = 1;
 
-   priv->evBox = GTK_EVENT_BOX(gtk_event_box_new());
-   gtk_widget_show(GTK_WIDGET(priv->evBox));
-   VIEW_OV_BOX_CLASS(parentClass)->set_over(VIEW_OV_BOX(that), GTK_WIDGET(priv->evBox));
+   priv->fill = TRUE;
+   priv->offset = -1;
+
+   priv->evBox = gtk_event_box_new();
+   gtk_widget_show(priv->evBox);
+   VIEW_OV_BOX_CLASS(parentClass)->set_over(VIEW_OV_BOX(that), priv->evBox);
 
    g_signal_connect(priv->evBox, "enter-notify-event",
                     G_CALLBACK(ViewAutoDrawerOnOverEnterLeave), that);
@@ -367,7 +539,10 @@ ViewAutoDrawerInit(GTypeInstance *instance, // IN
    g_signal_connect(that, "hierarchy-changed",
                     G_CALLBACK(ViewAutoDrawerOnHierarchyChanged), NULL);
 
-   ViewAutoDrawerUpdate(that, FALSE);
+   /* This change happens programmatically. Always react to it immediately. */
+   ViewAutoDrawerUpdate(that, TRUE);
+
+   ViewAutoDrawerRefreshPacking(that);
 }
 
 
@@ -556,7 +731,9 @@ ViewAutoDrawer_SetOverlapPixels(ViewAutoDrawer *that, // IN
    g_return_if_fail(VIEW_IS_AUTODRAWER(that));
 
    that->priv->overlapPixels = overlapPixels;
-   ViewAutoDrawerUpdate(that, FALSE);
+
+   /* This change happens programmatically. Always react to it immediately. */
+   ViewAutoDrawerUpdate(that, TRUE);
 }
 
 
@@ -584,7 +761,9 @@ ViewAutoDrawer_SetNoOverlapPixels(ViewAutoDrawer *that,  // IN
    g_return_if_fail(VIEW_IS_AUTODRAWER(that));
 
    that->priv->noOverlapPixels = noOverlapPixels;
-   ViewAutoDrawerUpdate(that, FALSE);
+
+   /* This change happens programmatically. Always react to it immediately. */
+   ViewAutoDrawerUpdate(that, TRUE);
 }
 
 
@@ -613,7 +792,9 @@ ViewAutoDrawer_SetActive(ViewAutoDrawer *that, // IN
    g_return_if_fail(VIEW_IS_AUTODRAWER(that));
 
    that->priv->active = active;
-   ViewAutoDrawerUpdate(that, FALSE);
+
+   /* This change happens programmatically. Always react to it immediately. */
+   ViewAutoDrawerUpdate(that, TRUE);
 }
 
 
@@ -641,5 +822,68 @@ ViewAutoDrawer_SetPinned(ViewAutoDrawer *that, // IN
    g_return_if_fail(VIEW_IS_AUTODRAWER(that));
 
    that->priv->pinned = pinned;
-   ViewAutoDrawerUpdate(that, pinned);
+
+   /*
+    * This change happens in response to user input. By default, give the user
+    * some time to correct his input before reacting to the change.
+    */
+   ViewAutoDrawerUpdate(that, FALSE);
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * ViewAutoDrawer_SetFill --
+ *
+ *      Set whether the Over widget of the AutoDrawer should fill the full
+ *      width of the AutoDrawer or just occupy the minimum space it needs.
+ *      A value of TRUE overrides offset settings.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      Drawer state is updated.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+void
+ViewAutoDrawer_SetFill(ViewAutoDrawer *that, // IN
+                       gboolean fill)        // IN
+{
+   g_return_if_fail(VIEW_IS_AUTODRAWER(that));
+
+   that->priv->fill = fill;
+   ViewAutoDrawerRefreshPacking(that);
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * ViewAutoDrawer_SetOffset --
+ *
+ *      Set the drawer's X offset, or distance in pixels from the left side.
+ *      If offset is -1, the drawer will be centered.  If fill has been set
+ *      TRUE by SetFill, these settings will have no effect.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      Drawer state is updated.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+void
+ViewAutoDrawer_SetOffset(ViewAutoDrawer *that, // IN
+                         gint offset)          // IN
+{
+   g_return_if_fail(VIEW_IS_AUTODRAWER(that));
+
+   that->priv->offset = offset;
+   ViewAutoDrawerRefreshPacking(that);
 }

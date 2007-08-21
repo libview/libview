@@ -1,4 +1,4 @@
-AC_INIT(libview, 0.5.2.90, libview-devel@lists.sourceforge.net)
+AC_INIT(libview, 0.6.1, view-devel@lists.sourceforge.net)
 AC_PREREQ(2.50)
 AC_CONFIG_SRCDIR(config.h.in)
 AC_COPYRIGHT([Copyright 2005 VMware, Inc.])
@@ -13,9 +13,9 @@ dnl #  ? : +1 :  ?   == internal changes that doesn't break anything.
 dnl #
 dnl # CURRENT : REVISION : AGE
 dnl #
-LT_CURRENT=1
-LT_REVISION=0
-LT_AGE=0
+LT_CURRENT=4
+LT_REVISION=1
+LT_AGE=2
 
 AC_SUBST(LT_RELEASE)
 AC_SUBST(LT_CURRENT)
@@ -26,7 +26,7 @@ AC_SUBST(LT_AGE)
 dnl ################################################################
 dnl # Initialize automake
 dnl ################################################################
-VERSION=0.5.2.90
+VERSION=0.6.1
 PACKAGE=libview
 
 AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
@@ -63,9 +63,13 @@ if test "x$GCC" = "xyes"; then
    CFLAGS="$CFLAGS -Wall"
 fi
 
-dnl # Disable deprecated functionality
-AM_CPPFLAGS="-DG_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DATK_DISABLED_DEPRECATED -DPANGO_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED"
-AC_SUBST(AM_CPPFLAGS)
+AC_ARG_ENABLE(deprecated, [  --enable-deprecated    compile with deprecated API usage],,enable_deprecated=no)
+if test "$enable_deprecated" = no; then
+	DEBUG_CFLAGS="-DG_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DATK_DISABLED_DEPRECATED -DPANGO_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED"
+fi
+
+AC_SUBST(CFLAGS)
+AC_SUBST(DEBUG_CFLAGS)
 
 dnl ################################################################
 dnl # Output the Makefiles

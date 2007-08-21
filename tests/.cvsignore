@@ -1,11 +1,13 @@
 Makefile
 Makefile.in
 test-auto-drawer
+test-content-box
 test-dead-entry
-test-ovBox
 test-drawer
+test-field-entry
 test-header-bgbox
 test-ip-entry
+test-ovBox
 test-wrap-label
 .deps
 .libs

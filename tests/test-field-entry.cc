@@ -23,9 +23,9 @@
 
 
 /*
- * test-ip-entry.cc
+ * test-field-entry.cc
  *
- *      A test program that demonstrates the view::IPEntry widget.
+ *      A test program that demonstrates the view::FieldEntry widget.
  */
 
 
@@ -38,6 +38,18 @@
 #include <libview/fieldEntry.hh>
 
 
+class SerialEntry
+   : public view::FieldEntry
+{
+public:
+   SerialEntry(Alignment fieldAlignment);
+
+protected:
+   void FilterField(Glib::ustring& fieldText) const;
+   Glib::ustring GetAllowedFieldChars(size_t field) const;
+};
+
+
 class AppWindow
    : public Gtk::Window
 {
@@ -46,13 +58,36 @@ public:
 
 private:
    view::IPEntry mEntry1;
-   view::IPEntry mEntry2;
-   Gtk::Entry mEntry3;
+   SerialEntry mEntry2;
+   SerialEntry mEntry3;
+   SerialEntry mEntry4;
 };
 
-AppWindow::AppWindow()
+SerialEntry::SerialEntry(Alignment fieldAlignment) // IN:
+   : FieldEntry(4, 5, '-', fieldAlignment)
 {
-   set_title("IPEntry Test");
+}
+
+void
+SerialEntry::FilterField(Glib::ustring& str) // IN/OUT:
+   const
+{
+   str = str.uppercase();
+}
+
+Glib::ustring
+SerialEntry::GetAllowedFieldChars(size_t field) // IN:
+   const
+{
+   return "0123456789ABCDEF";
+}
+
+AppWindow::AppWindow()
+   : mEntry2(SerialEntry::LEFT),
+     mEntry3(SerialEntry::CENTER),
+     mEntry4(SerialEntry::RIGHT)
+{
+   set_title("FieldEntry Test");
    set_border_width(12);
    set_default_size(300, 200);
 
@@ -62,41 +97,19 @@ AppWindow::AppWindow()
 
    mEntry1.show();
    vbox->pack_start(mEntry1, false, false);
+   mEntry3.SetText("192.168.0.1");
 
    mEntry2.show();
    vbox->pack_start(mEntry2, false, false);
+   mEntry2.SetText("191BD-74CBA-00917-BAB51");
 
-   /*
-    * Real Gtk::Entry to visually check the proper alignment of the delimiters
-    * of the FieldEntry. You can also use it to cut/paste and DnD between both
-    * kinds of entries.
-    */
    mEntry3.show();
    vbox->pack_start(mEntry3, false, false);
-   mEntry3.set_text("222.111.222.111");
+   mEntry3.SetText("191BD-74CBA-00917-BAB51");
 
-   /* Set value by quad-dotted. */
-   mEntry1.SetIP("10.0.0.1");
-   if (mEntry1.GetText() != "10.0.0.1") {
-      printf("Test 1 failed\n");
-   }
-
-   /*
-    * Set a field position beyond the length of a field, check that we cap
-    * it.
-    */
-   mEntry1.SetCurrentField(1, 3);
-   size_t posInField;
-   if (!(   mEntry1.GetCurrentField(&posInField) == 1
-         && posInField == 1)) {
-      printf("Test 2 failed\n");
-   }
-
-   /* Set value by number. */
-   mEntry1.SetDotlessIP((192 << 24) + (168 << 16) + (0 << 8) + (3 << 0));
-   if (mEntry1.GetText() != "192.168.0.3") {
-      printf("Test 3 failed\n");
-   }
+   mEntry4.show();
+   vbox->pack_start(mEntry4, false, false);
+   mEntry4.SetText("191BD-74CBA-00917-BAB51");
 }
 
 

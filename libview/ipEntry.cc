@@ -191,7 +191,7 @@ IPEntry::GetDotlessIP(void)
 /*
  *-----------------------------------------------------------------------------
  *
- * view::IPEntry::GetIsFieldValid --
+ * view::IPEntry::IsFieldValid --
  *
  *      Tests if the specified text is valid for a field.
  *
@@ -205,15 +205,9 @@ IPEntry::GetDotlessIP(void)
  */
 
 bool
-IPEntry::GetIsFieldValid(const Glib::ustring& str) // IN: Field to validate
+IPEntry::IsFieldValid(const Glib::ustring& str) // IN: Field to validate
     const
 {
-   for (int i = 0; i < str.length(); i++) {
-      if (str[i] < '0' || str[i] > '9') {
-         return false;
-      }
-   }
-
    return atoi(str.c_str()) < 256;
 }
 

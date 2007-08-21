@@ -266,7 +266,8 @@ MenuToggleAction::OnButtonPressed(GdkEventButton *event, // IN
              * the menu finally goes away. To avoid this, we explicitly
              * disconnect, once the menu is dismissed.
              */
-            mMenu->signal_unmap().connect(sigc::mem_fun(mMenu, &Gtk::Menu::detach));
+            mDetachConnection = mMenu->signal_unmap().connect(
+               sigc::mem_fun(this, &MenuToggleAction::DetachFromMenu));
 
          }
          mMenu->popup(event->button, event->time);
@@ -275,6 +276,31 @@ MenuToggleAction::OnButtonPressed(GdkEventButton *event, // IN
    } else {
       return false;
    }
+}
+
+
+/*
+ *-------------------------------------------------------------------
+ *
+ * view::MenuToggleAction::DetachFromMenu --
+ *
+ *      Callback to detach from the action's menu that disconnects
+ *      itself as well.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      None
+ *
+ *-------------------------------------------------------------------
+ */
+
+void
+MenuToggleAction::DetachFromMenu(void)
+{
+   mDetachConnection.disconnect();
+   mMenu->detach();
 }
 
 
