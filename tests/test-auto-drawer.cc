@@ -90,6 +90,7 @@ static guint n_entries = G_N_ELEMENTS (entries);
 
 GtkWidget *drawer;
 GtkWidget *button1;
+GtkWidget *button2;
 GtkWidget *cb0;
 GtkWidget *cb1;
 GtkWidget *cb2;
@@ -173,6 +174,14 @@ OnCenter(GtkWidget *widget,
 
 
 static void
+OnClose(GtkWidget *widget,
+         gpointer user_data)
+{
+   ViewAutoDrawer_Close(VIEW_AUTODRAWER(drawer));
+}
+
+
+static void
 OnAddWidget(GtkUIManager *manager,
             GtkWidget *widget,
             GtkHBox *hbox)
@@ -210,6 +219,13 @@ main(int argc,
   g_signal_connect(manager, "add_widget", G_CALLBACK(OnAddWidget), hbox);
   gtk_ui_manager_insert_action_group(manager, group, 0);
   gtk_ui_manager_add_ui_from_string(manager, ui, -1, NULL);
+
+  button2 = gtk_button_new_with_label("Close");
+  gtk_widget_show(button2);
+  gtk_box_pack_end(GTK_BOX(hbox), button2, FALSE, FALSE, 0);
+  g_signal_connect(G_OBJECT(button2), "clicked",
+                   G_CALLBACK(OnClose), NULL);
+  OnClose(NULL, NULL);
 
   GtkWidget *label = gtk_label_new("text");
   gtk_widget_show(label);

@@ -330,3 +330,35 @@ ViewDrawer_SetGoal(ViewDrawer *that, // IN
       priv->timer.pending = TRUE;
    }
 }
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * ViewDrawer_GetCloseTime --
+ *
+ *    Get the approximate amount of time it will take for this drawer to
+ *    open and close, in ms.
+ *
+ * Results:
+ *      The time it takes to open or close the drawer.
+ *
+ * Side effects:
+ *      None
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+int
+ViewDrawer_GetCloseTime(ViewDrawer *that)
+{
+   ViewDrawerPrivate *priv;
+
+   if (that == NULL) {
+      return 0;
+   }
+
+   priv = that->priv;
+
+   return priv->period * ((int)(1/priv->step) + 1);
+}

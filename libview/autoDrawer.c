@@ -40,10 +40,12 @@ struct _ViewAutoDrawerPrivate
    gboolean inputUngrabbed;
 
    gboolean opened;
+   gboolean forceClosing;
 
    gboolean fill;
    gint offset;
 
+   guint closeConnection;
    guint delayConnection;
    guint delayValue;
    guint overlapPixels;
@@ -92,8 +94,14 @@ ViewAutoDrawerEnforce(ViewAutoDrawer *that, // IN
    g_assert(GTK_IS_WIDGET(priv->over));
 
    ViewOvBox_SetMin(VIEW_OV_BOX(that), priv->noOverlapPixels);
-   fraction = priv->opened
-      ? 1 : ((double)priv->overlapPixels / priv->over->allocation.height);
+
+   // The forceClosing flag overrides the opened flag.
+   if (priv->opened && !priv->forceClosing) {
+      fraction = 1;
+   } else {
+      fraction = ((double)priv->overlapPixels / priv->over->allocation.height);
+   }
+
    if (!animate) {
       ViewOvBox_SetFraction(VIEW_OV_BOX(that), fraction);
    }
@@ -122,6 +130,33 @@ ViewAutoDrawerOnEnforceDelay(ViewAutoDrawer *that) // IN
 {
    that->priv->delayConnection = 0;
    ViewAutoDrawerEnforce(that, TRUE);
+
+   return FALSE;
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * ViewAutoDrawerOnCloseDelay --
+ *
+ *      Callback fired when the drawer is closed manually. This prevents the
+ *      drawer from reopening right away.
+ *
+ * Results:
+ *      FALSE to indicate timer should not repeat.
+ *
+ * Side effects:
+ *      None
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+static gboolean
+ViewAutoDrawerOnCloseDelay(ViewAutoDrawer *that) // IN
+{
+   that->priv->closeConnection = 0;
+   that->priv->forceClosing = FALSE;
 
    return FALSE;
 }
@@ -269,7 +304,10 @@ ViewAutoDrawerUpdate(ViewAutoDrawer *that, // IN
    if (priv->delayConnection) {
       g_source_remove(priv->delayConnection);
    }
-   if (immediate) {
+
+   if (priv->forceClosing) {
+      ViewAutoDrawerEnforce(that, TRUE);
+   } else if (immediate) {
       ViewAutoDrawerEnforce(that, FALSE);
    } else {
       priv->delayConnection = g_timeout_add(priv->delayValue,
@@ -332,7 +370,7 @@ ViewAutoDrawerOnGrabNotify(GtkWidget *evBox,     // IN: Unused
                            ViewAutoDrawer *that) // IN
 {
    ViewAutoDrawerPrivate *priv = that->priv;
-   
+
    priv->inputUngrabbed = ungrabbed;
 
    /*
@@ -481,7 +519,7 @@ ViewAutoDrawerRefreshPacking(ViewAutoDrawer *that) // IN
    expand = (that->priv->fill || (that->priv->offset < 0));
    fill = that->priv->fill;
    padding = (expand || fill) ? 0 : that->priv->offset;
-   
+
    gtk_box_set_child_packing(GTK_BOX(that), that->priv->evBox,
                              expand, fill, padding, GTK_PACK_START);
 }
@@ -516,6 +554,7 @@ ViewAutoDrawerInit(GTypeInstance *instance, // IN
 
    priv->active = TRUE;
    priv->pinned = FALSE;
+   priv->forceClosing = FALSE;
    priv->inputUngrabbed = TRUE;
    priv->delayConnection = 0;
    priv->delayValue = 250;
@@ -679,13 +718,13 @@ ViewAutoDrawer_New(void)
  *
  *      Set the response time of an AutoDrawer in ms., i.e. the time that
  *      elapses between:
- *      - when the AutoDrawer notices a change that can impact the outcome of 
+ *      - when the AutoDrawer notices a change that can impact the outcome of
  *        the decision to open or close the drawer,
  *      and
  *      - when the AutoDrawer makes such decision.
  *
- *      Users move the mouse inaccurately. If they temporarily move the mouse in 
- *      or out of the AutoDrawer for less than the reponse time, their move will 
+ *      Users move the mouse inaccurately. If they temporarily move the mouse in
+ *      or out of the AutoDrawer for less than the reponse time, their move will
  *      be ignored.
  *
  * Results:
@@ -886,4 +925,53 @@ ViewAutoDrawer_SetOffset(ViewAutoDrawer *that, // IN
 
    that->priv->offset = offset;
    ViewAutoDrawerRefreshPacking(that);
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * ViewAutoDrawer_Close --
+ *
+ *      Closes the drawer. This will not unset the pinned state.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      Drawer state is updated. If there is a focused widget inside the
+ *      drawer, unfocus it.
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+void
+ViewAutoDrawer_Close(ViewAutoDrawer *that)   // IN
+{
+   GtkWindow *window;
+   GtkWidget *focus;
+   GtkWidget *toplevel;
+
+   g_return_if_fail(VIEW_IS_AUTODRAWER(that));
+   toplevel = gtk_widget_get_toplevel(GTK_WIDGET(that));
+
+   if (!toplevel || !GTK_WIDGET_TOPLEVEL(toplevel)) {
+      // The autoDrawer cannot function properly without a toplevel.
+      return;
+   }
+   window = GTK_WINDOW(toplevel);
+
+   focus = gtk_window_get_focus(window);
+   if (focus && gtk_widget_is_ancestor(focus, that->priv->evBox)) {
+      gtk_window_set_focus(window, NULL);
+   }
+
+   that->priv->forceClosing = TRUE;
+   that->priv->closeConnection =
+      g_timeout_add(ViewDrawer_GetCloseTime(&that->parent) +
+                    that->priv->delayValue,
+      (GSourceFunc)ViewAutoDrawerOnCloseDelay, that);
+
+   /* This change happens programmatically. Always react to it immediately. */
+   ViewAutoDrawerUpdate(that, TRUE);
 }

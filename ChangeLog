@@ -1,3 +1,17 @@
+Thu Jun 12 13:43:75 PDT 2008  Carmen Jackson <carmen@vmware.com>
+
+	* libview/autoDrawer.c:
+	* libview/autoDrawer.h:
+	  - Add ViewAutoDrawer_Close function, which closes the drawer
+	    immediately when called.
+	* libview/drawer.c:
+	* libview/drawer.h:
+	  - Add ViewDrawer_GetCloseTime function to calculate the amount
+	    of time it would take to fully open or close the drawer.
+	* tests/test-auto-drawer.cc:
+	  - Add "Close" button inside the drawer to check the new Close
+	    functionality. This button should close the drawer immediately.
+
 ==================== 0.6.1 ====================
 
 Mon Aug 20 21:23:39 PDT 2007  Christian Hammond <chipx86@chipx86.com>

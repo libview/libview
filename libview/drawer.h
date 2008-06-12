@@ -74,6 +74,7 @@ GtkWidget *ViewDrawer_New(void);
 
 void ViewDrawer_SetSpeed(ViewDrawer *that, unsigned int period, double step);
 void ViewDrawer_SetGoal(ViewDrawer *that, double fraction);
+int ViewDrawer_GetCloseTime(ViewDrawer *that);
 
 
 G_END_DECLS

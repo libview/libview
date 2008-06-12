@@ -83,6 +83,8 @@ void ViewAutoDrawer_SetFill(ViewAutoDrawer *that, gboolean fill);
 
 void ViewAutoDrawer_SetOffset(ViewAutoDrawer *that, gint offset);
 
+void ViewAutoDrawer_Close(ViewAutoDrawer *that);
+
 G_END_DECLS
 
 
