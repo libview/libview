@@ -1,6 +1,10 @@
-versoin 0.6.1 (Tuesday, August 21, 2007):
+version 0.6.2 (Monday, June 16, 2008):
+	* Added a Close function to AutoDrawer, which closes the drawer
+	  immediately regardless of the location of the mouse pointer.
+
+version 0.6.1 (Tuesday, August 21, 2007):
 	* FieldEntry should now have a proper minimum size, accounting for any
-	  extra spacing.
+          extra spacing.
 	* OvBox now destroys its child windows after unrealizing all children,
 	  allowing child widgets to reparent their own windows before they're
 	  clobbered.

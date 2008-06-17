@@ -1,3 +1,13 @@
+==================== 0.6.2 ====================
+
+Mon Jun 16 17:32:04 PDT 2008  Carmen Jackson <carmen@vmware.com>
+
+	* libview/AUTHORS:
+	* libview/ChangeLog:
+	* libview/configure.ac:
+	* libview/NEWS:
+	  - Bumped version to 0.6.2.
+
 Thu Jun 12 13:43:75 PDT 2008  Carmen Jackson <carmen@vmware.com>
 
 	* libview/autoDrawer.c:
