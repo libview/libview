@@ -1,11 +1,23 @@
+Sun Dec  7 15:55:25 PST 2008  David Trowbridge <trowbrds@gmail.com>
+
+	* ChangeLog:
+	* configure.ac:
+	* NEWS:
+	  - Bumped version to 0.6.3
+	* configure.ac:
+	  - Add AC_PROG_CXX to properly get C++ compiler definitions.
+	* libview/autoDrawer.c:
+	  - Remove an assertion on the result of gtk_grab_get_current which is
+	    no longer guaranteed with modern GTK+ libraries.
+
 ==================== 0.6.2 ====================
 
 Mon Jun 16 17:32:04 PDT 2008  Carmen Jackson <carmen@vmware.com>
 
-	* libview/AUTHORS:
-	* libview/ChangeLog:
-	* libview/configure.ac:
-	* libview/NEWS:
+	* AUTHORS:
+	* ChangeLog:
+	* configure.ac:
+	* NEWS:
 	  - Bumped version to 0.6.2.
 
 Thu Jun 12 13:43:75 PDT 2008  Carmen Jackson <carmen@vmware.com>

@@ -1,3 +1,7 @@
+version 0.6.3 (Sunday, December 7, 2008):
+	* Update things to compile with the latest autotools.
+	* Fix an autoDrawer assertion when running with modern GTK+ libraries.
+
 version 0.6.2 (Monday, June 16, 2008):
 	* Added a Close function to AutoDrawer, which closes the drawer
 	  immediately regardless of the location of the mouse pointer.

@@ -252,9 +252,8 @@ ViewAutoDrawerUpdate(ViewAutoDrawer *that, // IN
       if (!grabbed) {
          grabbed = gtk_grab_get_current();
       }
-      g_assert(grabbed);
 
-      if (GTK_IS_MENU(grabbed)) {
+      if (grabbed && GTK_IS_MENU(grabbed)) {
          /*
           * With cascading menus, the deepest menu owns the grab. Traverse the
           * menu hierarchy up until we reach the attach widget for the whole
@@ -289,7 +288,7 @@ ViewAutoDrawerUpdate(ViewAutoDrawer *that, // IN
          }
       }
 
-      if (gtk_widget_is_ancestor(grabbed, priv->evBox)) {
+      if (grabbed && gtk_widget_is_ancestor(grabbed, priv->evBox)) {
          /*
           * Override the default 'immediate' to make sure the 'over' widget
           * immediately appears along with the widget the grab happens on
