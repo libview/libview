@@ -85,6 +85,7 @@ struct _ViewOvBoxPrivate
    GtkRequisition overR;
    unsigned int min;
    double fraction;
+   gint verticalOffset;
 };
 
 #define VIEW_OV_BOX_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), VIEW_TYPE_OV_BOX, ViewOvBoxPrivate))
@@ -130,6 +131,7 @@ ViewOvBoxInit(GTypeInstance *instance, // IN
    priv->overR.width = -1;
    priv->min = 0;
    priv->fraction = 0;
+   priv->verticalOffset = 0;
 }
 
 
@@ -302,7 +304,7 @@ ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
    }
 
    *y =   (priv->overR.height - ViewOvBoxGetActualMin(that))
-        * (priv->fraction - 1);
+        * (priv->fraction - 1) + priv->verticalOffset;
    *height = priv->overR.height;
 }
 
@@ -899,4 +901,41 @@ ViewOvBox_GetFraction(ViewOvBox *that)
    g_return_val_if_fail(that != NULL, 0);
 
    return that->priv->fraction;
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
+ * ViewOvBox_SetVerticalOffset --
+ *
+ *      Set the 'vertical offset' property of a ViewOvBox. Normally, we base
+ *      our position on the top edge of the window. This allows us to
+ *      be placed somewhere in the middle of a widget.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      None
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+void
+ViewOvBox_SetVerticalOffset(ViewOvBox *that, // IN
+                            gint offset)     // IN
+{
+   g_return_if_fail(that != NULL);
+
+   that->priv->verticalOffset = offset;
+   if (GTK_WIDGET_REALIZED(that)) {
+      int x;
+      int y;
+      int width;
+      int height;
+
+      ViewOvBoxGetOverGeometry(that, &x, &y, &width, &height);
+      gdk_window_move(that->priv->overWin, x, y);
+   }
 }

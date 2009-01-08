@@ -96,6 +96,9 @@ ViewOvBox_SetFraction(ViewOvBox *that,
 double
 ViewOvBox_GetFraction(ViewOvBox *that);
 
+void
+ViewOvBox_SetVerticalOffset(ViewOvBox *that,
+                            gint offset);
 
 G_END_DECLS
 

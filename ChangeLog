@@ -1,3 +1,27 @@
+==================== 0.6.4 ====================
+
+Wed Jan 7 17:32:04 PDT 2009  Jason 'vanRijn' Kasper <vR@movingparts.net>
+
+        * ChangeLog:
+        * configure.ac:
+        * NEWS:
+          - Bumped version to 0.6.4
+        * libview/AUTHORS:
+        * libview/ChangeLog:
+        * libview/ovBox.c:
+        * libview/ovBox.h:
+          - Add ViewOvBox_SetVerticalOffset function, which repositions
+            the "over" box at the given vertical offset. This is required
+            for cases where the user wishes to shift the position of the
+            "over" box down from the top of the GtkWindow (case in point:
+            Workstation in multimon mode with different monitor resolutions,
+            bottom-aligned).
+        * tests/test-auto-drawer.cc:
+          - Add "Vertical Offset" checkbox. Clicking it will reposition
+            the drawer 100 pixels down from the top of the GtkWindow.
+
+==================== 0.6.3 ====================
+
 Sun Dec  7 15:55:25 PST 2008  David Trowbridge <trowbrds@gmail.com>
 
 	* ChangeLog:
