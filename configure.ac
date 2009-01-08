@@ -64,7 +64,7 @@ if test "x$GCC" = "xyes"; then
    CFLAGS="$CFLAGS -Wall"
 fi
 
-AC_ARG_ENABLE(deprecated, [  --enable-deprecated    compile with deprecated API usage],,enable_deprecated=no)
+AC_ARG_ENABLE(deprecated, [  --enable-deprecated    compile with deprecated API usage],,enable_deprecated=yes)
 if test "$enable_deprecated" = no; then
 	DEBUG_CFLAGS="-DG_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGDK_PIXBUF_DISABLE_DEPRECATED -DATK_DISABLED_DEPRECATED -DPANGO_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED"
 fi

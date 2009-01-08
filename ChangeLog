@@ -1,5 +1,14 @@
 ==================== 0.6.4 ====================
 
+Wed Jan 7 18:38:04 PDT 2009  Jason 'vanRijn' Kasper <vR@movingparts.net>
+
+        * ChangeLog:
+        * NEWS:
+        * configure.ac:
+          - Due to gtkmm2 using the deprecated GtkType, our users previously
+            needed to compile with --enable-deprecated to get around it. Switching
+            default to --enable-deprecated=yes in configure.ac to be nicer.
+
 Wed Jan 7 17:32:04 PDT 2009  Jason 'vanRijn' Kasper <vR@movingparts.net>
 
         * ChangeLog:

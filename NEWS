@@ -1,9 +1,13 @@
-version 0.6.4 (Wednesday, Januar 7, 2000):
+version 0.6.4 (Wednesday, January 7, 2009):
         * Add ViewOvBox_SetVerticalOffset function, which repositions
           the "over" box at the given vertical offset. This is required
           for cases where the user wishes to shift the position of the
           "over" box down from the top of the GtkWindow (case in point:
           Workstation in multimon mode with different monitor resolutions,
+          bottom-aligned).
+        * Due to gtkmm2 using the deprecated GtkType, our users previously
+          needed to compile with --enable-deprecated to get around it. Switching
+          default to --enable-deprecated=yes in configure.ac to be nicer.
 
 version 0.6.3 (Sunday, December 7, 2008):
 	* Update things to compile with the latest autotools.
