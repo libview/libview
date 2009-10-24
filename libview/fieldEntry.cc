@@ -534,7 +534,7 @@ FieldEntry::insert_text_vfunc(const Glib::ustring& text, // IN:
    for (int i = 0; i < text.length(); i++) {
       if (text[i] == sTabChar) {
          /* Tabs in the input would conflict with our tab stops hack. */
-         break;
+         continue;
       }
 
       size_t candidateField;
