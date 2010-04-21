@@ -1,3 +1,9 @@
+Wed Apr 21 16:30:20 PDT 2010  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/wrapLabel.cc:
+	* libview/wrapLabel.hh:
+	  - Fixed the broken wrapping problem with GTK+ 2.20.
+
 ==================== 0.6.4 ====================
 
 Wed Jan 7 18:38:04 PDT 2009  Jason 'vanRijn' Kasper <vR@movingparts.net>
