@@ -51,7 +51,8 @@ namespace view {
  */
 
 WrapLabel::WrapLabel(const Glib::ustring &text) // IN: The label text
-   : mWrapWidth(0)
+   : mWrapWidth(0),
+     mWrapHeight(0)
 {
    get_layout()->set_wrap(Pango::WRAP_WORD_CHAR);
    set_alignment(0.0, 0.0);
@@ -132,13 +133,8 @@ WrapLabel::set_markup(const Glib::ustring &str) // IN: The text to set
 void
 WrapLabel::on_size_request(Gtk::Requisition *req) // OUT: Our requested size
 {
-   int width;
-   int height;
-
-   get_layout()->get_pixel_size(width, height);
-
    req->width  = 0;
-   req->height = height;
+   req->height = mWrapHeight;
 }
 
 
@@ -185,7 +181,7 @@ WrapLabel::on_size_allocate(Gtk::Allocation &alloc) // IN: Our allocation
  */
 
 void
-WrapLabel::SetWrapWidth(size_t width) // IN: The wrap width
+WrapLabel::SetWrapWidth(int width) // IN: The wrap width
 {
    if (width == 0) {
       return;
@@ -199,6 +195,9 @@ WrapLabel::SetWrapWidth(size_t width) // IN: The wrap width
 
    if (mWrapWidth != width) {
       mWrapWidth = width;
+
+      int unused;
+      get_layout()->get_pixel_size(unused, mWrapHeight);
       queue_resize();
    }
 }

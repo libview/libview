@@ -45,9 +45,10 @@ protected:
    virtual void on_size_request(Gtk::Requisition *req);
 
 private:
-   void SetWrapWidth(size_t width);
+   void SetWrapWidth(int width);
 
-   size_t mWrapWidth;
+   int mWrapWidth;
+   int mWrapHeight;
 };
 
 
