@@ -1,3 +1,11 @@
+==================== 0.6.5 ====================
+
+Wed Apr 21 16:33:25 PDT 2010  Christian Hammond <chipx86@chipx86.com>
+
+	* NEWS:
+	* configure,ac:
+	  - Bumped to version 0.6.5.
+
 Wed Apr 21 16:30:20 PDT 2010  Christian Hammond <chipx86@chipx86.com>
 
 	* libview/wrapLabel.cc:
