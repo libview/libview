@@ -193,11 +193,11 @@ WrapLabel::SetWrapWidth(int width) // IN: The wrap width
     */
    get_layout()->set_width(width * Pango::SCALE);
 
+   int unused;
+   get_layout()->get_pixel_size(unused, mWrapHeight);
+
    if (mWrapWidth != width) {
       mWrapWidth = width;
-
-      int unused;
-      get_layout()->get_pixel_size(unused, mWrapHeight);
       queue_resize();
    }
 }

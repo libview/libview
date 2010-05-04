@@ -1,3 +1,9 @@
+Tue May 04 14:25:02 PDT 2010  Christian Hammond <chipx86@chipx86.com>
+
+	* libview/wrapLabel.cc:
+	  - Fix a regression on older versions of GTK+ caused by the
+	    fix in 0.6.5.
+
 ==================== 0.6.5 ====================
 
 Wed Apr 21 16:33:25 PDT 2010  Christian Hammond <chipx86@chipx86.com>
