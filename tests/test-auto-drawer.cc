@@ -60,11 +60,11 @@ static const char *ui = "\
 <ui> \
 <menubar> \
     <menu name=\"File\" action=\"FileMenuAction\"> \
-	<menuitem name=\"New\" action=\"NewAction\"/> \
-	<menu name=\"Submenu\" action=\"SubMenuAction\"> \
-           <menuitem name=\"Open\" action=\"OpenAction\"/> \
+        <menuitem name=\"New\" action=\"NewAction\"/> \
+        <menu name=\"Submenu\" action=\"SubMenuAction\"> \
+            <menuitem name=\"Open\" action=\"OpenAction\"/> \
         </menu> \
-	<menuitem name=\"Quit\" action=\"QuitAction\" /> \
+       <menuitem name=\"Quit\" action=\"QuitAction\" /> \
      </menu> \
 </menubar> \
 </ui> \
@@ -100,6 +100,11 @@ GtkWidget *cb5;
 GtkWidget *cb6;
 GtkWidget *cb7;
 GtkWidget *cb8;
+
+GtkWidget *rb1;
+GtkWidget *rb2;
+GtkWidget *rb3;
+GtkWidget *rb4;
 
 
 static void
@@ -185,9 +190,30 @@ OnVerticalOffset(GtkWidget *widget,
 
 static void
 OnClose(GtkWidget *widget,
-         gpointer user_data)
+        gpointer user_data)
 {
    ViewAutoDrawer_Close(VIEW_AUTODRAWER(drawer));
+}
+
+
+static void
+OnLocation(GtkWidget *widget,
+           gpointer user_data)
+{
+   ViewOvBoxLocation location;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rb1))) {
+      location = VIEW_OVBOX_LOCATION_TOP;
+   } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rb2))) {
+      location = VIEW_OVBOX_LOCATION_BOTTOM;
+   } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rb3))) {
+      location = VIEW_OVBOX_LOCATION_LEFT;
+   } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rb4))) {
+      location = VIEW_OVBOX_LOCATION_RIGHT;
+   } else {
+      return;
+   }
+
+   ViewOvBox_SetLocation(VIEW_OV_BOX(drawer), location);
 }
 
 
@@ -206,6 +232,7 @@ main(int argc,
 {
   GtkWidget *window;
   GtkWidget *vbox;
+  GtkWidget *hSeparator;
 
   gtk_init(&argc, &argv);
 
@@ -330,6 +357,38 @@ main(int argc,
   g_signal_connect(G_OBJECT(cb8), "toggled",
                    G_CALLBACK(OnVerticalOffset), NULL);
   OnVerticalOffset(NULL, NULL);
+
+  hSeparator = gtk_hseparator_new();
+  gtk_widget_show(hSeparator);
+  gtk_box_pack_start(GTK_BOX(vbox), hSeparator, FALSE, FALSE, 0);
+
+  rb1 = gtk_radio_button_new_with_label(NULL, "Location: Top");
+  gtk_widget_show(rb1);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb1), TRUE);
+  gtk_box_pack_start(GTK_BOX(vbox), rb1, FALSE, FALSE, 0);
+  g_signal_connect(G_OBJECT(rb1), "toggled",
+                   G_CALLBACK(OnLocation), NULL);
+
+  GSList* rbGroup = gtk_radio_button_group(GTK_RADIO_BUTTON(rb1));
+  rb2 = gtk_radio_button_new_with_label(rbGroup, "Location: Bottom");
+  gtk_widget_show(rb2);
+  gtk_box_pack_start(GTK_BOX(vbox), rb2, FALSE, FALSE, 0);
+  g_signal_connect(G_OBJECT(rb2), "toggled",
+                   G_CALLBACK(OnLocation), NULL);
+
+  rbGroup = gtk_radio_button_group(GTK_RADIO_BUTTON(rb2));
+  rb3 = gtk_radio_button_new_with_label(rbGroup, "Location: Left");
+  gtk_widget_show(rb3);
+  gtk_box_pack_start(GTK_BOX(vbox), rb3, FALSE, FALSE, 0);
+  g_signal_connect(G_OBJECT(rb3), "toggled",
+                   G_CALLBACK(OnLocation), NULL);
+
+  rbGroup = gtk_radio_button_group(GTK_RADIO_BUTTON(rb3));
+  rb4 = gtk_radio_button_new_with_label(rbGroup, "Location: Right");
+  gtk_widget_show(rb4);
+  gtk_box_pack_start(GTK_BOX(vbox), rb4, FALSE, FALSE, 0);
+  g_signal_connect(G_OBJECT(rb4), "toggled",
+                   G_CALLBACK(OnLocation), NULL);
 
   gtk_main();
 

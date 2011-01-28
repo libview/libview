@@ -68,6 +68,14 @@ typedef struct _ViewOvBoxClass {
 } ViewOvBoxClass;
 
 
+typedef enum _ViewOvBoxLocation {
+   VIEW_OVBOX_LOCATION_TOP,
+   VIEW_OVBOX_LOCATION_BOTTOM,
+   VIEW_OVBOX_LOCATION_LEFT,
+   VIEW_OVBOX_LOCATION_RIGHT
+} ViewOvBoxLocation;
+
+
 G_BEGIN_DECLS
 
 
@@ -99,6 +107,10 @@ ViewOvBox_GetFraction(ViewOvBox *that);
 void
 ViewOvBox_SetVerticalOffset(ViewOvBox *that,
                             gint offset);
+
+void
+ViewOvBox_SetLocation(ViewOvBox *that,
+                      ViewOvBoxLocation location);
 
 G_END_DECLS
 

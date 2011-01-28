@@ -86,6 +86,7 @@ struct _ViewOvBoxPrivate
    unsigned int min;
    double fraction;
    gint verticalOffset;
+   ViewOvBoxLocation location;
 };
 
 #define VIEW_OV_BOX_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), VIEW_TYPE_OV_BOX, ViewOvBoxPrivate))
@@ -132,6 +133,7 @@ ViewOvBoxInit(GTypeInstance *instance, // IN
    priv->min = 0;
    priv->fraction = 0;
    priv->verticalOffset = 0;
+   priv->location = VIEW_OVBOX_LOCATION_TOP;
 }
 
 
@@ -203,7 +205,13 @@ ViewOvBoxUnmap(GtkWidget *widget) // IN
 static inline unsigned int
 ViewOvBoxGetActualMin(ViewOvBox *that) // IN
 {
-   return MIN(that->priv->min, that->priv->overR.height);
+   ViewOvBoxPrivate *priv = that->priv;
+   if (priv->location == VIEW_OVBOX_LOCATION_RIGHT
+       || priv->location == VIEW_OVBOX_LOCATION_LEFT) {
+      return MIN(priv->min, priv->overR.width);
+   } else {
+      return MIN(priv->min, priv->overR.height);
+   }
 }
 
 
@@ -236,10 +244,27 @@ ViewOvBoxGetUnderGeometry(ViewOvBox *that, // IN
    min = ViewOvBoxGetActualMin(that);
    allocation = &GTK_WIDGET(that)->allocation;
 
-   *x = 0;
-   *y = min;
-   *width = allocation->width;
-   *height = allocation->height - min;
+   if (that->priv->location == VIEW_OVBOX_LOCATION_RIGHT) {
+      *x = 0;
+      *y = 0;
+      *width = allocation->width - min;
+      *height = allocation->height;
+   } else if (that->priv->location == VIEW_OVBOX_LOCATION_LEFT) {
+      *x = min;
+      *y = 0;
+      *width = allocation->width - min;
+      *height = allocation->height;
+   } else if (that->priv->location == VIEW_OVBOX_LOCATION_TOP) {
+      *x = 0;
+      *y = min;
+      *width = allocation->width;
+      *height = allocation->height - min;
+   } else {
+      *x = 0;
+      *y = 0;
+      *width = allocation->width;
+      *height = allocation->height - min;
+   }
 }
 
 
@@ -266,13 +291,13 @@ ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
                          int *width,      // OUT
                          int *height)     // OUT
 {
-   ViewOvBoxPrivate *priv;
+   ViewOvBoxPrivate *priv = that->priv;
    gboolean expand;
    gboolean fill;
    guint padding;
-   unsigned int boxWidth;
-
-   priv = that->priv;
+   unsigned int boxWidth = GTK_WIDGET(that)->allocation.width;
+   unsigned int boxHeight = GTK_WIDGET(that)->allocation.height;
+   unsigned int min;
 
    if (priv->over) {
       /*
@@ -291,21 +316,53 @@ ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
       padding = 0;
    }
 
-   boxWidth = GTK_WIDGET(that)->allocation.width;
-   if (!expand) {
-      *width = MIN(priv->overR.width, boxWidth - padding);
-      *x = padding;
-   } else if (!fill) {
-      *width = MIN(priv->overR.width, boxWidth);
-      *x = (boxWidth - *width) / 2;
+   if (   priv->location == VIEW_OVBOX_LOCATION_TOP
+       || priv->location == VIEW_OVBOX_LOCATION_BOTTOM) {
+      if (!expand) {
+         *width = MIN(priv->overR.width, boxWidth - padding);
+         *x = padding;
+      } else if (!fill) {
+         *width = MIN(priv->overR.width, boxWidth);
+         *x = (boxWidth - *width) / 2;
+      } else {
+         *width = boxWidth;
+         *x = 0;
+      }
+
+      *height = priv->overR.height;
+
    } else {
-      *width = boxWidth;
-      *x = 0;
+      if (!expand) {
+         *height = MIN(priv->overR.height, boxHeight - padding);
+         *y = padding;
+      } else if (!fill) {
+         *height = MIN(priv->overR.height, boxHeight);
+         *y = (boxHeight - *height) / 2;
+      } else {
+         *height = boxHeight;
+         *y = 0;
+      }
+
+      *width = priv->overR.width;
    }
 
-   *y =   (priv->overR.height - ViewOvBoxGetActualMin(that))
-        * (priv->fraction - 1) + priv->verticalOffset;
-   *height = priv->overR.height;
+   min = ViewOvBoxGetActualMin(that);
+   if (priv->location == VIEW_OVBOX_LOCATION_TOP) {
+      *y =   (priv->overR.height - min) * (priv->fraction - 1)
+           + priv->verticalOffset;
+
+   } else if (priv->location == VIEW_OVBOX_LOCATION_BOTTOM) {
+      *y =   boxHeight - min
+           - (priv->overR.height - min) * priv->fraction
+           - priv->verticalOffset;
+
+   } else if (priv->location == VIEW_OVBOX_LOCATION_RIGHT) {
+      *x =   boxWidth - min
+           - (priv->overR.width - min) * priv->fraction;
+
+   } else if (priv->location == VIEW_OVBOX_LOCATION_LEFT) {
+      *x = (priv->overR.width - min) * (priv->fraction - 1);
+   }
 }
 
 
@@ -494,10 +551,18 @@ ViewOvBoxSizeRequest(GtkWidget *widget,           // IN
                            "fill", &fill,
                            "padding", &padding,
                            NULL);
-   requisition->width = MAX(underR.width,
-                            priv->overR.width + ((expand || fill) ? 0 : padding));
+
    min = ViewOvBoxGetActualMin(that);
-   requisition->height = MAX(underR.height + min, priv->overR.height);
+   if (   priv->location == VIEW_OVBOX_LOCATION_RIGHT
+       || priv->location == VIEW_OVBOX_LOCATION_LEFT) {
+      requisition->width = MAX(underR.width + min, priv->overR.width);
+      requisition->height = MAX(underR.height,
+                                priv->overR.height + ((expand || fill) ? 0 : padding));
+   } else {
+      requisition->width = MAX(underR.width,
+                               priv->overR.width + ((expand || fill) ? 0 : padding));
+      requisition->height = MAX(underR.height + min, priv->overR.height);
+   }
 }
 
 
@@ -845,6 +910,35 @@ ViewOvBox_SetMin(ViewOvBox *that,  // IN
 /*
  *-----------------------------------------------------------------------------
  *
+ * ViewOvBox_SetLocation --
+ *
+ *      Set the 'location' property of a ViewOvBox. By default, we base
+ *      our position on the top edge of the window. This allows us to
+ *      be placed on the left, right, top, or bottom edge.
+ *
+ * Results:
+ *      None
+ *
+ * Side effects:
+ *      None
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+void
+ViewOvBox_SetLocation(ViewOvBox *that,              // IN
+                      ViewOvBoxLocation location)   // IN
+{
+   g_return_if_fail(that != NULL);
+
+   that->priv->location = location;
+   gtk_widget_queue_resize(GTK_WIDGET(that));
+}
+
+
+/*
+ *-----------------------------------------------------------------------------
+ *
  * ViewOvBox_SetFraction --
  *
  *      Set the 'fraction' property of a ViewOvBox, i.e. how much of the 'over'
@@ -864,9 +958,24 @@ ViewOvBox_SetFraction(ViewOvBox *that, // IN
                       double fraction) // IN
 {
    g_return_if_fail(that != NULL);
-   g_return_if_fail(fraction >=0 && fraction <= 1);
+   g_return_if_fail(fraction >= 0 && fraction <= 1);
 
    that->priv->fraction = fraction;
+
+   /*
+    * Normally, we would call gtk_widget_queue_resize every time a widget
+    * property changes (here that's the Fraction). As a result, the widget's
+    * size_request and size_allocation methods are asynchronously invoked.
+    *
+    * This is a special case because we want to update the widget as Fraction
+    * updates fast and synchronously to make the over widget movement look
+    * like an animation, without flickering.
+    *
+    * Since we know, by design, that changing Fraction only changes the x and y
+    * position of the Over widget and doesn't change the size or requisition of
+    * the Over and Under widgets, we can take a shortcut and call
+    * gdk_window_move directly to get the full update.
+    */
    if (GTK_WIDGET_REALIZED(that)) {
       int x;
       int y;
