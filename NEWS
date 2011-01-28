@@ -1,3 +1,11 @@
+version 0.6.6 (Tuesday, May 4, 2010):
+	* Fixed a new regression in WrapLabel on older versions of GTK+. We weren't
+	  calculating the desired height for the label often enough, instead only
+	  doing it when the size allocation actually changed. Now we always
+	  calculate based on the width of the PangoLayout in order to guarantee
+	  we're referencing the correct height. This restores compatibility with
+	  older and newer versions of GTK+.
+
 version 0.6.5 (Wednesday, April 21, 2010):
 	* Fixed some major issues with WrapLabel on GTK+ 2.20. The wrapping
 	  was broken due to the PangoLayout of the label changing size at
