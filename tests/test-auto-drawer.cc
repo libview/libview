@@ -99,7 +99,6 @@ GtkWidget *cb4;
 GtkWidget *cb5;
 GtkWidget *cb6;
 GtkWidget *cb7;
-GtkWidget *cb8;
 
 GtkWidget *rb1;
 GtkWidget *rb2;
@@ -176,15 +175,6 @@ OnCenter(GtkWidget *widget,
 {
    ViewAutoDrawer_SetOffset(VIEW_AUTODRAWER(drawer),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb7)) ? -1 : 10);
-}
-
-
-static void
-OnVerticalOffset(GtkWidget *widget,
-                 gpointer user_data)
-{
-   ViewOvBox_SetVerticalOffset(VIEW_OV_BOX(drawer),
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb8)) ? 100 : 0);
 }
 
 
@@ -349,14 +339,6 @@ main(int argc,
   g_signal_connect(G_OBJECT(cb7), "toggled",
                    G_CALLBACK(OnCenter), NULL);
   OnCenter(NULL, NULL);
-
-  cb8 = gtk_check_button_new_with_label("Vertical Offset");
-  gtk_widget_show(cb8);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb8), FALSE);
-  gtk_box_pack_start(GTK_BOX(vbox), cb8, FALSE, FALSE, 0);
-  g_signal_connect(G_OBJECT(cb8), "toggled",
-                   G_CALLBACK(OnVerticalOffset), NULL);
-  OnVerticalOffset(NULL, NULL);
 
   hSeparator = gtk_hseparator_new();
   gtk_widget_show(hSeparator);

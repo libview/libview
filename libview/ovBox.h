@@ -98,19 +98,15 @@ ViewOvBox_SetMin(ViewOvBox *that,
                unsigned int min);
 
 void
+ViewOvBox_SetLocation(ViewOvBox *that,
+                      ViewOvBoxLocation location);
+
+void
 ViewOvBox_SetFraction(ViewOvBox *that,
                     double fraction);
 
 double
 ViewOvBox_GetFraction(ViewOvBox *that);
-
-void
-ViewOvBox_SetVerticalOffset(ViewOvBox *that,
-                            gint offset);
-
-void
-ViewOvBox_SetLocation(ViewOvBox *that,
-                      ViewOvBoxLocation location);
 
 G_END_DECLS
 

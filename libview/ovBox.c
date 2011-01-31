@@ -85,7 +85,6 @@ struct _ViewOvBoxPrivate
    GtkRequisition overR;
    unsigned int min;
    double fraction;
-   gint verticalOffset;
    ViewOvBoxLocation location;
 };
 
@@ -132,7 +131,6 @@ ViewOvBoxInit(GTypeInstance *instance, // IN
    priv->overR.width = -1;
    priv->min = 0;
    priv->fraction = 0;
-   priv->verticalOffset = 0;
    priv->location = VIEW_OVBOX_LOCATION_TOP;
 }
 
@@ -294,7 +292,6 @@ ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
    ViewOvBoxPrivate *priv = that->priv;
    gboolean expand;
    gboolean fill;
-   guint padding;
    unsigned int boxWidth = GTK_WIDGET(that)->allocation.width;
    unsigned int boxHeight = GTK_WIDGET(that)->allocation.height;
    unsigned int min;
@@ -307,20 +304,18 @@ ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
       gtk_container_child_get(GTK_CONTAINER(that), priv->over,
                               "expand", &expand,
                               "fill", &fill,
-                              "padding", &padding,
                               NULL);
    } else {
       /* Default values used by GtkBox. */
       expand = TRUE;
       fill = TRUE;
-      padding = 0;
    }
 
    if (   priv->location == VIEW_OVBOX_LOCATION_TOP
        || priv->location == VIEW_OVBOX_LOCATION_BOTTOM) {
       if (!expand) {
-         *width = MIN(priv->overR.width, boxWidth - padding);
-         *x = padding;
+         *width = MIN(priv->overR.width, boxWidth);
+         *x = 0;
       } else if (!fill) {
          *width = MIN(priv->overR.width, boxWidth);
          *x = (boxWidth - *width) / 2;
@@ -333,8 +328,8 @@ ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
 
    } else {
       if (!expand) {
-         *height = MIN(priv->overR.height, boxHeight - padding);
-         *y = padding;
+         *height = MIN(priv->overR.height, boxHeight);
+         *y = 0;
       } else if (!fill) {
          *height = MIN(priv->overR.height, boxHeight);
          *y = (boxHeight - *height) / 2;
@@ -348,13 +343,11 @@ ViewOvBoxGetOverGeometry(ViewOvBox *that, // IN
 
    min = ViewOvBoxGetActualMin(that);
    if (priv->location == VIEW_OVBOX_LOCATION_TOP) {
-      *y =   (priv->overR.height - min) * (priv->fraction - 1)
-           + priv->verticalOffset;
+      *y = (priv->overR.height - min) * (priv->fraction - 1);
 
    } else if (priv->location == VIEW_OVBOX_LOCATION_BOTTOM) {
       *y =   boxHeight - min
-           - (priv->overR.height - min) * priv->fraction
-           - priv->verticalOffset;
+           - (priv->overR.height - min) * priv->fraction;
 
    } else if (priv->location == VIEW_OVBOX_LOCATION_RIGHT) {
       *x =   boxWidth - min
@@ -537,7 +530,6 @@ ViewOvBoxSizeRequest(GtkWidget *widget,           // IN
    GtkRequisition underR;
    gboolean expand;
    gboolean fill;
-   guint padding;
    unsigned int min;
 
    that = VIEW_OV_BOX(widget);
@@ -549,18 +541,15 @@ ViewOvBoxSizeRequest(GtkWidget *widget,           // IN
    gtk_container_child_get(GTK_CONTAINER(that), priv->over,
                            "expand", &expand,
                            "fill", &fill,
-                           "padding", &padding,
                            NULL);
 
    min = ViewOvBoxGetActualMin(that);
    if (   priv->location == VIEW_OVBOX_LOCATION_RIGHT
        || priv->location == VIEW_OVBOX_LOCATION_LEFT) {
       requisition->width = MAX(underR.width + min, priv->overR.width);
-      requisition->height = MAX(underR.height,
-                                priv->overR.height + ((expand || fill) ? 0 : padding));
+      requisition->height = MAX(underR.height, priv->overR.height);
    } else {
-      requisition->width = MAX(underR.width,
-                               priv->overR.width + ((expand || fill) ? 0 : padding));
+      requisition->width = MAX(underR.width, priv->overR.width);
       requisition->height = MAX(underR.height + min, priv->overR.height);
    }
 }
@@ -1010,41 +999,4 @@ ViewOvBox_GetFraction(ViewOvBox *that)
    g_return_val_if_fail(that != NULL, 0);
 
    return that->priv->fraction;
-}
-
-
-/*
- *-----------------------------------------------------------------------------
- *
- * ViewOvBox_SetVerticalOffset --
- *
- *      Set the 'vertical offset' property of a ViewOvBox. Normally, we base
- *      our position on the top edge of the window. This allows us to
- *      be placed somewhere in the middle of a widget.
- *
- * Results:
- *      None
- *
- * Side effects:
- *      None
- *
- *-----------------------------------------------------------------------------
- */
-
-void
-ViewOvBox_SetVerticalOffset(ViewOvBox *that, // IN
-                            gint offset)     // IN
-{
-   g_return_if_fail(that != NULL);
-
-   that->priv->verticalOffset = offset;
-   if (GTK_WIDGET_REALIZED(that)) {
-      int x;
-      int y;
-      int width;
-      int height;
-
-      ViewOvBoxGetOverGeometry(that, &x, &y, &width, &height);
-      gdk_window_move(that->priv->overWin, x, y);
-   }
 }
