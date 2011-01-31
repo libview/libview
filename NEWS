@@ -1,3 +1,15 @@
+version 0.7.0 (Monday, January 31, 2010):
+	* Add the ViewOvBox_SetLocation function, which repositions the "over" box 
+	  to the top, bottom, left, or right of the "under" widget.
+	* Remove support for verticalOffset in ViewOVBox. Its implementation was
+	  was slightly buggy (it did not account for the change in the Under
+	  widget's offset when the verticalOffset was changed), and its single
+    	  use case at VMware was removed.
+	* Remove support for padding in ViewOVBox. The effect of having padding
+	  on the Over widget is unclear and makes the code unnecessarily complex.
+	  The recommended way to produce the same effect is to pack a box inside
+	  the Over widget and configure its spacing instead.
+
 version 0.6.6 (Tuesday, May 4, 2010):
 	* Fixed a new regression in WrapLabel on older versions of GTK+. We weren't
 	  calculating the desired height for the label often enough, instead only

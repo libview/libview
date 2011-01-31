@@ -1,7 +1,7 @@
-AC_INIT(libview, 0.6.6, view-devel@lists.sourceforge.net)
+AC_INIT(libview, 0.7.0, view-devel@lists.sourceforge.net)
 AC_PREREQ(2.50)
 AC_CONFIG_SRCDIR(config.h.in)
-AC_COPYRIGHT([Copyright 2005-2010 VMware, Inc.])
+AC_COPYRIGHT([Copyright 2005-2011 VMware, Inc.])
 
 dnl ################################################################
 dnl # libtool versioning
@@ -13,8 +13,8 @@ dnl #  ? : +1 :  ?   == internal changes that doesn't break anything.
 dnl #
 dnl # CURRENT : REVISION : AGE
 dnl #
-LT_CURRENT=6
-LT_REVISION=3
+LT_CURRENT=7
+LT_REVISION=0
 LT_AGE=4
 
 AC_SUBST(LT_RELEASE)
@@ -26,7 +26,7 @@ AC_SUBST(LT_AGE)
 dnl ################################################################
 dnl # Initialize automake
 dnl ################################################################
-VERSION=0.6.6
+VERSION=0.7.0
 PACKAGE=libview
 
 AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
